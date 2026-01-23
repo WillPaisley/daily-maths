@@ -1,0 +1,28 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Mental Math</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🧮 Daily Mental Math</h1>
+    <p class="date" id="date"></p>
+   
+    <form id="quiz-form">
+      <div id="questions"></div>
+      <button type="submit" id="submit-btn">Check Answers</button>
+    </form>
+   
+    <div id="result" class="hidden">
+      <h2>Score: <span id="score"></span>/5</h2>
+      <p id="message"></p>
+    </div>
+  </div>
+ 
+  <script src="app.js"></script>
+</body>
+</html>
