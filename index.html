@@ -1,28 +1,79 @@
-html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Mental Math</title>
+  <title>Daily Mental Math Challenge</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h1>🧮 Daily Mental Math</h1>
-    <p class="date" id="date"></p>
-   
-    <form id="quiz-form">
-      <div id="questions"></div>
-      <button type="submit" id="submit-btn">Check Answers</button>
-    </form>
-   
-    <div id="result" class="hidden">
-      <h2>Score: <span id="score"></span>/5</h2>
-      <p id="message"></p>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="screen active">
+      <h1>🧮 Daily Mental Math Challenge</h1>
+      <p class="date" id="current-date"></p>
+      <p class="description">Test your multiplication and division skills with 5 daily questions!</p>
+      <div class="instructions">
+        <h3>How it works:</h3>
+        <ul>
+          <li>5 questions total</li>
+          <li>Two-digit multiplication & division</li>
+          <li>Multiple choice answers</li>
+          <li>Same questions for everyone today</li>
+        </ul>
+      </div>
+      <button id="start-btn" class="btn-primary">Start Today's Challenge</button>
+    </div>
+
+    <!-- Question Screen -->
+    <div id="question-screen" class="screen">
+      <div class="progress">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <p class="progress-text">Question <span id="current-question">1</span> of 5</p>
+      </div>
+      
+      <h2 id="question-text"></h2>
+      
+      <div id="options-container" class="options-grid">
+        <!-- Options will be generated here -->
+      </div>
+      
+      <div class="navigation">
+        <button id="submit-btn" class="btn-primary" disabled>Submit Answer</button>
+        <button id="next-btn" class="btn-secondary hidden">Next Question →</button>
+      </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+      <h1>🎯 Challenge Complete!</h1>
+      <div class="score-display">
+        <h2>Your Score: <span id="final-score">0</span>/5</h2>
+        <div class="score-circle">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#e0e0e0" stroke-width="12"></circle>
+            <circle id="score-circle" cx="60" cy="60" r="54" fill="none" stroke="#667eea" stroke-width="12" 
+                    stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="339.292" stroke-dashoffset="339.292"></circle>
+          </svg>
+          <div class="score-percent">0%</div>
+        </div>
+      </div>
+      
+      <div id="result-details">
+        <!-- Question results will be added here -->
+      </div>
+      
+      <div class="result-message">
+        <p id="encouragement-message"></p>
+      </div>
+      
+      <button id="restart-btn" class="btn-primary">Try Again</button>
+      <button id="share-btn" class="btn-secondary">Share Score</button>
     </div>
   </div>
- 
+
   <script src="app.js"></script>
 </body>
 </html>

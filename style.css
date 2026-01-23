@@ -1,107 +1,325 @@
-css
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
-  margin: 0;
-  padding: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
 }
 
 .container {
   background: white;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-  max-width: 400px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 100%;
+  max-width: 500px;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.screen.active {
+  display: flex;
 }
 
 h1 {
-  margin: 0 0 5px 0;
+  color: #333;
   text-align: center;
+  margin-bottom: 10px;
+  font-size: 2.2em;
+}
+
+h2 {
+  color: #444;
+  margin-bottom: 20px;
+  font-size: 1.8em;
+}
+
+h3 {
+  color: #555;
+  margin-bottom: 15px;
 }
 
 .date {
   text-align: center;
   color: #666;
-  margin: 0 0 30px 0;
-}
-
-.question {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
-  font-size: 1.2em;
-}
-
-.question input {
-  width: 80px;
-  padding: 8px 12px;
-  font-size: 1em;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  text-align: center;
-}
-
-.question input:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.question input.correct {
-  border-color: #22c55e;
-  background: #f0fdf4;
-}
-
-.question input.incorrect {
-  border-color: #ef4444;
-  background: #fef2f2;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
   font-size: 1.1em;
+  margin-bottom: 20px;
+}
+
+.description {
+  text-align: center;
+  color: #666;
+  font-size: 1.1em;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.instructions {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+
+.instructions ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.instructions li {
+  padding: 8px 0;
+  color: #555;
+  position: relative;
+  padding-left: 25px;
+}
+
+.instructions li:before {
+  content: "✓";
+  color: #667eea;
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+/* Progress Bar */
+.progress {
+  margin-bottom: 30px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 4px;
+  width: 20%;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  text-align: center;
+  color: #666;
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+/* Question */
+#question-text {
+  font-size: 2.5em;
+  text-align: center;
+  color: #333;
+  margin: 20px 0;
+  font-weight: bold;
+}
+
+/* Options */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 30px 0;
+}
+
+.option-btn {
+  padding: 20px;
+  font-size: 1.3em;
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: #333;
+}
+
+.option-btn:hover {
+  background: #e9ecef;
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.option-btn.selected {
   background: #667eea;
   color: white;
+  border-color: #667eea;
+  transform: scale(1.02);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.option-btn.correct {
+  background: #22c55e;
+  color: white;
+  border-color: #22c55e;
+}
+
+.option-btn.incorrect {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+/* Buttons */
+.btn-primary, .btn-secondary {
+  padding: 18px 30px;
+  font-size: 1.2em;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  width: 100%;
   margin-top: 10px;
 }
 
-button:hover {
-  background: #5a67d8;
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
 }
 
-button:disabled {
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
   background: #ccc;
   cursor: not-allowed;
+  transform: none;
 }
 
-#result {
-  text-align: center;
+.btn-secondary {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.btn-secondary:hover {
+  background: #667eea;
+  color: white;
+}
+
+.navigation {
+  display: flex;
+  gap: 15px;
   margin-top: 20px;
 }
 
-#result h2 {
-  color: #667eea;
+.navigation button {
+  flex: 1;
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
-.answer-reveal {
-  color: #ef4444;
-  font-size: 0.85em;
-  margin-left: 5px;
+/* Results Screen */
+.score-display {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.score-circle {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 20px auto;
+}
+
+.score-percent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2em;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.question-result {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.question-result.correct {
+  border-left: 5px solid #22c55e;
+}
+
+.question-result.incorrect {
+  border-left: 5px solid #ef4444;
+}
+
+.question-text {
+  font-weight: 500;
+  color: #333;
+}
+
+.question-answer {
+  font-weight: bold;
+  color: #667eea;
+}
+
+#encouragement-message {
+  font-size: 1.3em;
+  text-align: center;
+  color: #555;
+  margin: 20px 0;
+  padding: 15px;
+  background: #f0f7ff;
+  border-radius: 10px;
+  border-left: 4px solid #667eea;
+}
+
+/* Animation for question transitions */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.screen.active {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container {
+    padding: 25px;
+    margin: 10px;
+  }
+  
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  #question-text {
+    font-size: 2em;
+  }
+  
+  h1 {
+    font-size: 1.8em;
+  }
 }
