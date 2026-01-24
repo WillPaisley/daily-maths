@@ -1,4 +1,11 @@
 // App state
+
+console.log('=== DEBUG: Screen Elements ===');
+console.log('Welcome screen:', document.getElementById('welcome-screen'));
+console.log('Profile screen:', document.getElementById('profile-screen'));
+console.log('Question screen:', document.getElementById('question-screen'));
+console.log('Results screen:', document.getElementById('results-screen'));
+
 const state = {
   currentQuestion: 0,
   score: 0,
@@ -193,10 +200,17 @@ function formatDate() {
 
 // Switch screen
 function switchScreen(screenName) {
+  console.log(`Switching to screen: ${screenName}`);
+  
   Object.values(screens).forEach(screen => {
     screen.classList.remove('active');
   });
-  screens[screenName].classList.add('active');
+  
+  if (screens[screenName]) {
+    screens[screenName].classList.add('active');
+  } else {
+    console.error(`Screen "${screenName}" not found!`);
+  }
 }
 
 // Start the timer
@@ -561,12 +575,27 @@ function init() {
   // Render profiles
   renderProfiles();
   
-  // Event listeners
-  elements.selectProfileBtn.addEventListener('click', () => switchScreen('profile'));
-  elements.backToWelcomeBtn.addEventListener('click', () => switchScreen('welcome'));
+  // ========== EVENT LISTENERS ==========
   
+  // 1. Welcome Screen -> Profile Selection
+  elements.selectProfileBtn.addEventListener('click', () => {
+    console.log('Going to profile selection screen');
+    switchScreen('profile');
+  });
+  
+  // 2. Profile Screen -> Back to Welcome
+  elements.backToWelcomeBtn.addEventListener('click', () => {
+    switchScreen('welcome');
+  });
+  
+  // 3. Profile Screen -> Start Game (Question Screen)
   elements.startGameBtn.addEventListener('click', () => {
-    if (!state.currentProfile) return;
+    if (!state.currentProfile) {
+      alert('Please select a profile first!');
+      return;
+    }
+    
+    console.log('Starting game for profile:', state.currentProfile.name);
     
     // Update current profile display
     elements.currentProfileName.textContent = state.currentProfile.name;
@@ -585,24 +614,20 @@ function init() {
     renderQuestion();
   });
   
-  // Submit answer button
+  // 4. Question Screen -> Submit Answer
   elements.submitAnswerBtn.addEventListener('click', submitAnswer);
   
-  // Skip question button
+  // 5. Question Screen -> Skip Question
   elements.skipBtn.addEventListener('click', skipQuestion);
   
-  // Enter key to submit answer
+  // 6. Enter key to submit answer
   elements.answerInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       submitAnswer();
     }
   });
   
-  // Only allow numbers in input
-  elements.answerInput.addEventListener('input', (e) => {
-    e.target.value = e.target.value.replace(/[^0-9]/g, '');
-  });
-  
+  // 7. Results Screen -> Play Again
   elements.restartBtn.addEventListener('click', () => {
     resetGameState();
     
@@ -616,11 +641,19 @@ function init() {
     renderQuestion();
   });
   
+  // 8. Results Screen -> New Profile
   elements.newProfileBtn.addEventListener('click', () => {
+    console.log('Going back to profile selection');
     switchScreen('profile');
   });
   
+  // 9. Results Screen -> Share Score
   elements.shareBtn.addEventListener('click', shareScore);
+  
+  // Only allow numbers in input
+  elements.answerInput.addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+  });
 }
 
 // Start the app when page loads
