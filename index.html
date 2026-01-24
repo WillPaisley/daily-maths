@@ -27,6 +27,30 @@
       <button id="select-profile-btn" class="btn-primary">Select Profile & Start</button>
     </div>
 
+<div id="all-results-screen" class="screen">
+  <h1>📊 All Players Results</h1>
+  <p class="description">See statistics for all players</p>
+  
+  <div id="all-results-container" class="all-results-container">
+    <!-- Results will be populated here -->
+  </div>
+  
+  <div class="summary-stats">
+    <div class="summary-stat">
+      <div class="summary-label">Total Games Played</div>
+      <div class="summary-value" id="total-games">0</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-label">Overall Average</div>
+      <div class="summary-value" id="overall-average">0/5</div>
+    </div>
+  </div>
+  
+  <div class="navigation">
+    <button id="back-to-welcome-btn2" class="btn-secondary">← Back to Welcome</button>
+  </div>
+</div>
+
     <!-- Profile Selection Screen -->
     <div id="profile-screen" class="screen">
       <h1>👥 Select Your Profile</h1>
@@ -39,6 +63,7 @@
       <div class="navigation">
         <button id="back-to-welcome-btn" class="btn-secondary">← Back</button>
         <button id="start-game-btn" class="btn-primary" disabled>Start Challenge</button>
+        <button id="see-results-btn" class="btn-secondary">See Results</button>
       </div>
     </div>
 

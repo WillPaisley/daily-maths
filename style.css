@@ -526,3 +526,153 @@ h3 {
     font-size: 1.5em;
   }
 }
+
+/* All Results Screen */
+.all-results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 25px 0;
+}
+
+.player-stats-card {
+  border-radius: 15px;
+  padding: 20px;
+  border: 3px solid;
+  transition: all 0.3s ease;
+}
+
+.player-stats-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.player-stats-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.player-stats-icon {
+  font-size: 3em;
+}
+
+.player-stats-name h3 {
+  margin: 0;
+  font-size: 1.5em;
+  color: #333;
+}
+
+.player-difficulty {
+  color: #666;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.player-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.player-stat {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+}
+
+.player-stat-label {
+  font-size: 0.8em;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.player-stat-value {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+}
+
+.player-stats-progress {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.player-stats-progress .progress-bar {
+  height: 10px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.player-stats-progress .progress-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
+
+.player-stats-progress .progress-text {
+  text-align: center;
+  color: #666;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/* Summary Statistics */
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.summary-stat {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 25px;
+  text-align: center;
+  color: white;
+}
+
+.summary-label {
+  font-size: 1em;
+  opacity: 0.9;
+  margin-bottom: 10px;
+}
+
+.summary-value {
+  font-size: 2.5em;
+  font-weight: bold;
+}
+
+/* Responsive for all results */
+@media (max-width: 768px) {
+  .player-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .player-stat {
+    padding: 10px;
+  }
+  
+  .player-stat-value {
+    font-size: 1.3em;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

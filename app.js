@@ -107,6 +107,7 @@ const screens = {
   profile: document.getElementById('profile-screen'),
   question: document.getElementById('question-screen'),
   results: document.getElementById('results-screen')
+  allResults: document.getElementById('all-results-screen')
 };
 
 const elements = {
@@ -134,7 +135,134 @@ const elements = {
   resultsProfileIcon: document.getElementById('results-profile-icon'),
   timerCircle: document.getElementById('timer-circle'),
   timerSeconds: document.getElementById('timer-seconds')
+  seeResultsBtn: document.getElementById('see-results-btn'),
+  allResultsContainer: document.getElementById('all-results-container'),
+  backToWelcomeBtn2: document.getElementById('back-to-welcome-btn2'),
+  totalGames: document.getElementById('total-games'),
+  overallAverage: document.getElementById('overall-average')
 };
+
+// Function to get all players' statistics
+function getAllPlayersStats() {
+  const results = getStoredResults();
+  const allProfiles = state.profiles;
+  const stats = [];
+  
+  let totalGames = 0;
+  let totalScore = 0;
+  let totalQuestionsAnswered = 0;
+  
+  allProfiles.forEach(profile => {
+    const profileResults = results[profile.id] || { attempts: [], averageScore: 0, totalGames: 0 };
+    
+    // Calculate questions answered correctly
+    let totalCorrectAnswers = 0;
+    if (profileResults.attempts) {
+      profileResults.attempts.forEach(attempt => {
+        totalCorrectAnswers += attempt.score;
+      });
+    }
+    
+    // Calculate questions answered (both correct and incorrect)
+    const questionsAnswered = profileResults.totalGames * 5;
+    
+    const profileStats = {
+      id: profile.id,
+      name: profile.name,
+      icon: profile.icon,
+      color: profile.color,
+      backgroundColor: profile.backgroundColor,
+      difficulty: profile.difficulty,
+      averageScore: profileResults.averageScore || 0,
+      totalGames: profileResults.totalGames || 0,
+      totalCorrectAnswers: totalCorrectAnswers,
+      questionsAnswered: questionsAnswered,
+      accuracy: questionsAnswered > 0 ? (totalCorrectAnswers / questionsAnswered * 100) : 0
+    };
+    
+    stats.push(profileStats);
+    
+    // Update overall totals
+    totalGames += profileResults.totalGames || 0;
+    totalScore += totalCorrectAnswers;
+    totalQuestionsAnswered += questionsAnswered;
+  });
+  
+  // Calculate overall statistics
+  const overallStats = {
+    totalGames: totalGames,
+    totalScore: totalScore,
+    totalQuestions: totalQuestionsAnswered,
+    overallAverage: totalGames > 0 ? totalScore / totalGames : 0,
+    overallAccuracy: totalQuestionsAnswered > 0 ? (totalScore / totalQuestionsAnswered * 100) : 0
+  };
+  
+  return {
+    playerStats: stats,
+    overallStats: overallStats
+  };
+}
+
+// Function to display all players' results
+function displayAllResults() {
+  const stats = getAllPlayersStats();
+  
+  // Clear container
+  elements.allResultsContainer.innerHTML = '';
+  
+  // Display each player's stats
+  stats.playerStats.forEach(player => {
+    const playerCard = document.createElement('div');
+    playerCard.className = 'player-stats-card';
+    playerCard.style.borderColor = player.color;
+    playerCard.style.backgroundColor = player.backgroundColor;
+    
+    playerCard.innerHTML = `
+      <div class="player-stats-header">
+        <div class="player-stats-icon">${player.icon}</div>
+        <div class="player-stats-name">
+          <h3>${player.name}</h3>
+          <span class="player-difficulty">${player.difficulty.charAt(0).toUpperCase() + player.difficulty.slice(1)} Difficulty</span>
+        </div>
+      </div>
+      
+      <div class="player-stats-grid">
+        <div class="player-stat">
+          <div class="player-stat-label">Games Played</div>
+          <div class="player-stat-value">${player.totalGames}</div>
+        </div>
+        <div class="player-stat">
+          <div class="player-stat-label">Avg Score</div>
+          <div class="player-stat-value">${player.averageScore.toFixed(1)}/5</div>
+        </div>
+        <div class="player-stat">
+          <div class="player-stat-label">Questions</div>
+          <div class="player-stat-value">${player.questionsAnswered}</div>
+        </div>
+        <div class="player-stat">
+          <div class="player-stat-label">Accuracy</div>
+          <div class="player-stat-value">${player.accuracy.toFixed(1)}%</div>
+        </div>
+      </div>
+      
+      <div class="player-stats-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${player.averageScore / 5 * 100}%; background: ${player.color};"></div>
+        </div>
+        <div class="progress-text">Average: ${player.averageScore.toFixed(1)} out of 5</div>
+      </div>
+    `;
+    
+    elements.allResultsContainer.appendChild(playerCard);
+  });
+  
+  // Update overall statistics
+  elements.totalGames.textContent = stats.overallStats.totalGames;
+  elements.overallAverage.textContent = `${stats.overallStats.overallAverage.toFixed(1)}/5`;
+  
+  // Switch to all results screen
+  switchScreen('allResults');
+}
 
 // Seed-based random number generator
 function createSeededRandom(seed) {
@@ -597,6 +725,7 @@ function init() {
     profile: screens.profile ? '✅ Found' : '❌ Missing',
     question: screens.question ? '✅ Found' : '❌ Missing',
     results: screens.results ? '✅ Found' : '❌ Missing'
+    allResults: screens.allResults ? '✅ Found' : '❌ Missing'
   });
   
   // Load profiles and settings from config.js
@@ -638,6 +767,17 @@ function init() {
     switchScreen('profile');
   });
   
+  // See Results button
+  elements.seeResultsBtn.addEventListener('click', () => {
+    console.log('📊 See Results button clicked');
+    displayAllResults();
+  });
+
+  // Back button from all results
+  elements.backToWelcomeBtn2.addEventListener('click', () => {
+    switchScreen('welcome');
+  });
+
   // 2. Profile Screen -> Back to Welcome
   elements.backToWelcomeBtn.addEventListener('click', () => {
     switchScreen('welcome');
