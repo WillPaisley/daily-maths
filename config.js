@@ -3,7 +3,7 @@ const profiles = [
   {
     id: 1,
     name: "Twat",
-    icon: "👨‍🦳",
+    icon: "👨‍🦳",  // Fixed: Man with beard emoji
     color: "#4CAF50",
     backgroundColor: "#E8F5E9",
     difficulty: "medium"
@@ -11,7 +11,7 @@ const profiles = [
   {
     id: 2,
     name: "Son of Twat",
-    icon: "👦",
+    icon: "👦",  // Boy emoji
     color: "#2196F3",
     backgroundColor: "#E3F2FD",
     difficulty: "medium"
