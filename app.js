@@ -4,19 +4,26 @@ const state = {
   score: 0,
   userAnswers: [],
   questions: [],
-  selectedOption: null
+  selectedOption: null,
+  currentProfile: null,
+  profiles: [],
+  gameSettings: null
 };
 
 // DOM Elements
 const screens = {
   welcome: document.getElementById('welcome-screen'),
+  profile: document.getElementById('profile-screen'),
   question: document.getElementById('question-screen'),
   results: document.getElementById('results-screen')
 };
 
 const elements = {
   currentDate: document.getElementById('current-date'),
-  startBtn: document.getElementById('start-btn'),
+  selectProfileBtn: document.getElementById('select-profile-btn'),
+  profilesContainer: document.getElementById('profiles-container'),
+  backToWelcomeBtn: document.getElementById('back-to-welcome-btn'),
+  startGameBtn: document.getElementById('start-game-btn'),
   questionText: document.getElementById('question-text'),
   optionsContainer: document.getElementById('options-container'),
   submitBtn: document.getElementById('submit-btn'),
@@ -27,8 +34,13 @@ const elements = {
   resultDetails: document.getElementById('result-details'),
   encouragementMessage: document.getElementById('encouragement-message'),
   restartBtn: document.getElementById('restart-btn'),
+  newProfileBtn: document.getElementById('new-profile-btn'),
   shareBtn: document.getElementById('share-btn'),
-  scoreCircle: document.getElementById('score-circle')
+  scoreCircle: document.getElementById('score-circle'),
+  currentProfileName: document.getElementById('current-profile-name'),
+  currentProfileIndicator: document.getElementById('current-profile-indicator'),
+  resultsProfileName: document.getElementById('results-profile-name'),
+  resultsProfileIcon: document.getElementById('results-profile-icon')
 };
 
 // Seed-based random number generator
@@ -39,49 +51,44 @@ function createSeededRandom(seed) {
   };
 }
 
-// Generate multiplication question
-function generateMultiplication(rng) {
-  // Generate two numbers between 10 and 99
-  const a = Math.floor(rng() * 90) + 10;
-  const b = Math.floor(rng() * 90) + 10;
+// Generate multiplication question based on difficulty
+function generateMultiplication(rng, difficulty) {
+  const range = state.gameSettings.numberRange[difficulty];
+  const a = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
+  const b = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
   const correctAnswer = a * b;
   
-  // Generate 3 wrong answers
   const options = [correctAnswer];
   while (options.length < 4) {
-    // Generate plausible wrong answers (±10-30% of correct answer)
     const offset = Math.floor(correctAnswer * (rng() * 0.4 - 0.2));
     const wrongAnswer = correctAnswer + offset;
     
-    // Ensure it's different from correct answer and other wrong answers
     if (wrongAnswer !== correctAnswer && !options.includes(wrongAnswer)) {
       options.push(wrongAnswer);
     }
   }
   
-  // Shuffle options
   shuffleArray(options, rng);
   
   return {
     question: `${a} × ${b} = ?`,
     correctAnswer: correctAnswer,
     options: options,
-    correctIndex: options.indexOf(correctAnswer)
+    correctIndex: options.indexOf(correctAnswer),
+    type: 'multiplication'
   };
 }
 
-// Generate division question
-function generateDivision(rng) {
-  // Generate two numbers between 10 and 99
-  const divisor = Math.floor(rng() * 90) + 10;
-  const quotient = Math.floor(rng() * 90) + 10;
+// Generate division question based on difficulty
+function generateDivision(rng, difficulty) {
+  const range = state.gameSettings.numberRange[difficulty];
+  const divisor = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
+  const quotient = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
   const dividend = divisor * quotient;
   const correctAnswer = quotient;
   
-  // Generate 3 wrong answers
   const options = [correctAnswer];
   while (options.length < 4) {
-    // Generate plausible wrong answers
     let wrongAnswer;
     if (rng() > 0.5) {
       wrongAnswer = Math.floor(dividend / (divisor + Math.floor(rng() * 10 - 5)));
@@ -89,20 +96,19 @@ function generateDivision(rng) {
       wrongAnswer = correctAnswer + Math.floor(rng() * 20 - 10);
     }
     
-    // Ensure positive, different, and plausible
     if (wrongAnswer > 0 && wrongAnswer !== correctAnswer && !options.includes(wrongAnswer)) {
       options.push(wrongAnswer);
     }
   }
   
-  // Shuffle options
   shuffleArray(options, rng);
   
   return {
     question: `${dividend} ÷ ${divisor} = ?`,
     correctAnswer: correctAnswer,
     options: options,
-    correctIndex: options.indexOf(correctAnswer)
+    correctIndex: options.indexOf(correctAnswer),
+    type: 'division'
   };
 }
 
@@ -114,19 +120,19 @@ function shuffleArray(array, rng) {
   }
 }
 
-// Generate today's questions
-function generateDailyQuestions() {
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  const seed = Array.from(today).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+// Generate today's questions based on profile difficulty
+function generateDailyQuestions(profile) {
+  const today = new Date().toISOString().slice(0, 10);
+  const seed = Array.from(today).reduce((acc, char) => acc + char.charCodeAt(0), 0) + profile.id;
   const rng = createSeededRandom(seed);
+  const difficulty = profile.difficulty;
   
   const questions = [];
-  for (let i = 0; i < 5; i++) {
-    // Alternate between multiplication and division
+  for (let i = 0; i < state.gameSettings.dailyQuestions; i++) {
     if (i % 2 === 0) {
-      questions.push(generateMultiplication(rng));
+      questions.push(generateMultiplication(rng, difficulty));
     } else {
-      questions.push(generateDivision(rng));
+      questions.push(generateDivision(rng, difficulty));
     }
   }
   
@@ -147,13 +153,58 @@ function switchScreen(screenName) {
   screens[screenName].classList.add('active');
 }
 
+// Render profile selection screen
+function renderProfiles() {
+  elements.profilesContainer.innerHTML = '';
+  
+  state.profiles.forEach(profile => {
+    const profileCard = document.createElement('div');
+    profileCard.className = 'profile-card';
+    profileCard.dataset.profileId = profile.id;
+    
+    profileCard.innerHTML = `
+      <div class="profile-icon">${profile.icon}</div>
+      <h3>${profile.name}</h3>
+      <p class="profile-difficulty">${profile.difficulty.charAt(0).toUpperCase() + profile.difficulty.slice(1)} Difficulty</p>
+    `;
+    
+    // Apply profile color
+    profileCard.style.borderColor = profile.color;
+    profileCard.style.backgroundColor = profile.backgroundColor;
+    
+    profileCard.addEventListener('click', () => selectProfile(profile.id));
+    elements.profilesContainer.appendChild(profileCard);
+  });
+}
+
+// Select a profile
+function selectProfile(profileId) {
+  // Clear previous selection
+  document.querySelectorAll('.profile-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  
+  // Mark selected profile
+  const selectedCard = document.querySelector(`[data-profile-id="${profileId}"]`);
+  selectedCard.classList.add('selected');
+  
+  // Find and set current profile
+  state.currentProfile = state.profiles.find(p => p.id === profileId);
+  
+  // Enable start button
+  elements.startGameBtn.disabled = false;
+  
+  // Update start button text
+  elements.startGameBtn.textContent = `Start as ${state.currentProfile.name}`;
+}
+
 // Render current question
 function renderQuestion() {
   const question = state.questions[state.currentQuestion];
   
   // Update progress
   elements.currentQuestion.textContent = state.currentQuestion + 1;
-  elements.progressFill.style.width = `${((state.currentQuestion) / 5) * 100}%`;
+  elements.progressFill.style.width = `${((state.currentQuestion) / state.gameSettings.dailyQuestions) * 100}%`;
   
   // Set question text
   elements.questionText.textContent = question.question;
@@ -213,7 +264,8 @@ function submitAnswer() {
     userAnswer: question.options[state.selectedOption],
     correctAnswer: question.correctAnswer,
     isCorrect: isCorrect,
-    selectedIndex: state.selectedOption
+    selectedIndex: state.selectedOption,
+    type: question.type
   });
   
   // Show correct/incorrect styling
@@ -244,18 +296,22 @@ function nextQuestion() {
 
 // Show results
 function showResults() {
+  // Update profile info in results
+  elements.resultsProfileName.textContent = state.currentProfile.name;
+  elements.resultsProfileIcon.textContent = state.currentProfile.icon;
+  
   // Update final score
   elements.finalScore.textContent = state.score;
   
   // Calculate percentage for circle animation
-  const percentage = (state.score / 5) * 100;
+  const percentage = (state.score / state.gameSettings.dailyQuestions) * 100;
   const circumference = 2 * Math.PI * 54;
   const offset = circumference - (percentage / 100) * circumference;
   
   // Animate score circle
   setTimeout(() => {
     elements.scoreCircle.style.strokeDashoffset = offset;
-    document.querySelector('.score-percent').textContent = `${percentage}%`;
+    document.querySelector('.score-percent').textContent = `${Math.round(percentage)}%`;
   }, 100);
   
   // Show question results
@@ -264,11 +320,18 @@ function showResults() {
     const resultDiv = document.createElement('div');
     resultDiv.className = `question-result ${result.isCorrect ? 'correct' : 'incorrect'}`;
     
+    // Add difficulty indicator
+    const difficultyClass = result.type === 'multiplication' ? 'multiplication' : 'division';
+    const typeIcon = result.type === 'multiplication' ? '×' : '÷';
+    
     resultDiv.innerHTML = `
-      <div class="question-text">Q${index + 1}: ${result.question}</div>
-      <div class="question-answer">
-        ${result.isCorrect ? '✓' : '✗'} 
-        ${result.isCorrect ? 'Correct!' : `You chose ${result.userAnswer}, correct was ${result.correctAnswer}`}
+      <div class="question-type ${difficultyClass}">${typeIcon}</div>
+      <div class="question-content">
+        <div class="question-text">Q${index + 1}: ${result.question}</div>
+        <div class="question-answer">
+          ${result.isCorrect ? '✓' : '✗'} 
+          ${result.isCorrect ? 'Correct!' : `You chose ${result.userAnswer}, correct was ${result.correctAnswer}`}
+        </div>
       </div>
     `;
     
@@ -277,14 +340,14 @@ function showResults() {
   
   // Show encouragement message
   let message = '';
-  if (state.score === 5) {
-    message = '🎉 Perfect score! You are a math genius! 🧠';
+  if (state.score === state.gameSettings.dailyQuestions) {
+    message = `🎉 Perfect score ${state.currentProfile.name}! You are a math genius! 🧠`;
   } else if (state.score >= 4) {
-    message = '🌟 Excellent work! You\'re really good at this!';
+    message = `🌟 Excellent work ${state.currentProfile.name}! You're really good at this!`;
   } else if (state.score >= 3) {
-    message = '👍 Good job! Keep practicing to get even better!';
+    message = `👍 Good job ${state.currentProfile.name}! Keep practicing to get even better!`;
   } else {
-    message = '💪 Every challenge makes you stronger. Try again tomorrow!';
+    message = `💪 Every challenge makes you stronger ${state.currentProfile.name}. Try again tomorrow!`;
   }
   elements.encouragementMessage.textContent = message;
   
@@ -294,7 +357,7 @@ function showResults() {
 
 // Share score
 function shareScore() {
-  const shareText = `I scored ${state.score}/5 on the Daily Mental Math Challenge! 🧮\n\nTry it yourself: ${window.location.href}`;
+  const shareText = `${state.currentProfile.name} scored ${state.score}/5 on the Daily Mental Math Challenge! 🧮\n\nTry it yourself: ${window.location.href}`;
   
   if (navigator.share) {
     navigator.share({
@@ -311,16 +374,64 @@ function shareScore() {
   }
 }
 
+// Reset game state
+function resetGameState() {
+  state.currentQuestion = 0;
+  state.score = 0;
+  state.userAnswers = [];
+  state.selectedOption = null;
+  
+  // Generate new questions for current profile
+  if (state.currentProfile) {
+    state.questions = generateDailyQuestions(state.currentProfile);
+  }
+}
+
 // Initialize app
 function init() {
+  // Load profiles and settings
+  state.profiles = window.profiles || [
+    { id: 1, name: "Dad", icon: "👨‍🦳", color: "#4CAF50", backgroundColor: "#E8F5E9", difficulty: "medium" },
+    { id: 2, name: "Will", icon: "👦", color: "#2196F3", backgroundColor: "#E3F2FD", difficulty: "easy" }
+  ];
+  
+  state.gameSettings = window.gameSettings || {
+    dailyQuestions: 5,
+    defaultDifficulty: "medium",
+    numberRange: {
+      easy: { min: 10, max: 30 },
+      medium: { min: 10, max: 99 },
+      hard: { min: 20, max: 99 }
+    }
+  };
+  
   // Set current date
   elements.currentDate.textContent = formatDate();
   
-  // Generate questions
-  state.questions = generateDailyQuestions();
+  // Render profiles
+  renderProfiles();
   
   // Event listeners
-  elements.startBtn.addEventListener('click', () => {
+  elements.selectProfileBtn.addEventListener('click', () => switchScreen('profile'));
+  
+  elements.backToWelcomeBtn.addEventListener('click', () => switchScreen('welcome'));
+  
+  elements.startGameBtn.addEventListener('click', () => {
+    if (!state.currentProfile) return;
+    
+    // Update current profile display
+    elements.currentProfileName.textContent = state.currentProfile.name;
+    elements.currentProfileIndicator.querySelector('.profile-icon').textContent = state.currentProfile.icon;
+    elements.currentProfileIndicator.style.borderColor = state.currentProfile.color;
+    elements.currentProfileIndicator.style.backgroundColor = state.currentProfile.backgroundColor;
+    
+    // Generate questions for selected profile
+    state.questions = generateDailyQuestions(state.currentProfile);
+    
+    // Reset game state
+    resetGameState();
+    
+    // Switch to question screen and render first question
     switchScreen('question');
     renderQuestion();
   });
@@ -329,22 +440,20 @@ function init() {
   elements.nextBtn.addEventListener('click', nextQuestion);
   
   elements.restartBtn.addEventListener('click', () => {
-    // Reset state
-    state.currentQuestion = 0;
-    state.score = 0;
-    state.userAnswers = [];
-    state.selectedOption = null;
-    
-    // Regenerate questions (new day = new questions)
-    state.questions = generateDailyQuestions();
+    resetGameState();
     
     // Reset UI
-    elements.progressFill.style.width = '20%';
+    elements.progressFill.style.width = '0%';
     elements.scoreCircle.style.strokeDashoffset = '339.292';
     document.querySelector('.score-percent').textContent = '0%';
     
-    // Switch back to welcome screen
-    switchScreen('welcome');
+    // Switch back to question screen
+    switchScreen('question');
+    renderQuestion();
+  });
+  
+  elements.newProfileBtn.addEventListener('click', () => {
+    switchScreen('profile');
   });
   
   elements.shareBtn.addEventListener('click', shareScore);

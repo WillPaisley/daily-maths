@@ -20,18 +20,40 @@
           <li>Two-digit multiplication & division</li>
           <li>Multiple choice answers</li>
           <li>Same questions for everyone today</li>
+          <li>Different profiles can track progress</li>
         </ul>
       </div>
-      <button id="start-btn" class="btn-primary">Start Today's Challenge</button>
+      <button id="select-profile-btn" class="btn-primary">Select Profile & Start</button>
+    </div>
+
+    <!-- Profile Selection Screen -->
+    <div id="profile-screen" class="screen">
+      <h1>👥 Select Your Profile</h1>
+      <p class="description">Choose who's playing today</p>
+      
+      <div id="profiles-container" class="profiles-grid">
+        <!-- Profiles will be loaded from config.js -->
+      </div>
+      
+      <div class="navigation">
+        <button id="back-to-welcome-btn" class="btn-secondary">← Back</button>
+        <button id="start-game-btn" class="btn-primary" disabled>Start Challenge</button>
+      </div>
     </div>
 
     <!-- Question Screen -->
     <div id="question-screen" class="screen">
-      <div class="progress">
-        <div class="progress-bar">
-          <div class="progress-fill" id="progress-fill"></div>
+      <div class="question-header">
+        <div class="profile-indicator" id="current-profile-indicator">
+          <span class="profile-icon">👨‍🦳</span>
+          <span class="profile-name" id="current-profile-name">Dad</span>
         </div>
-        <p class="progress-text">Question <span id="current-question">1</span> of 5</p>
+        <div class="progress">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <p class="progress-text">Question <span id="current-question">1</span> of 5</p>
+        </div>
       </div>
       
       <h2 id="question-text"></h2>
@@ -48,7 +70,14 @@
 
     <!-- Results Screen -->
     <div id="results-screen" class="screen">
-      <h1>🎯 Challenge Complete!</h1>
+      <div class="results-header">
+        <div class="profile-indicator">
+          <span class="profile-icon" id="results-profile-icon">👨‍🦳</span>
+          <span class="profile-name" id="results-profile-name">Dad</span>
+        </div>
+        <h1>🎯 Challenge Complete!</h1>
+      </div>
+      
       <div class="score-display">
         <h2>Your Score: <span id="final-score">0</span>/5</h2>
         <div class="score-circle">
@@ -69,11 +98,15 @@
         <p id="encouragement-message"></p>
       </div>
       
-      <button id="restart-btn" class="btn-primary">Try Again</button>
-      <button id="share-btn" class="btn-secondary">Share Score</button>
+      <div class="navigation">
+        <button id="restart-btn" class="btn-primary">Play Again</button>
+        <button id="new-profile-btn" class="btn-secondary">New Player</button>
+        <button id="share-btn" class="btn-secondary">Share Score</button>
+      </div>
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
