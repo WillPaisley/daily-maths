@@ -1,74 +1,4 @@
 <!DOCTYPE html>
-  <!-- DEBUG SCRIPT -->
-  <script>
-    console.log('=== PAGE LOAD DEBUG ===');
-    console.log('Window loaded at:', new Date().toLocaleTimeString());
-    
-    // Check if all required elements exist
-    const checkElements = () => {
-      const elements = {
-        'welcome-screen': document.getElementById('welcome-screen'),
-        'profile-screen': document.getElementById('profile-screen'),
-        'question-screen': document.getElementById('question-screen'),
-        'results-screen': document.getElementById('results-screen'),
-        'select-profile-btn': document.getElementById('select-profile-btn'),
-        'back-to-welcome-btn': document.getElementById('back-to-welcome-btn'),
-        'start-game-btn': document.getElementById('start-game-btn')
-      };
-      
-      console.log('Checking elements...');
-      Object.entries(elements).forEach(([id, element]) => {
-        console.log(`${id}:`, element ? '✅ Found' : '❌ NOT FOUND');
-      });
-      
-      return elements;
-    };
-    
-    // Wait for DOM to be fully loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM fully loaded');
-      const elements = checkElements();
-      
-      // Check initial screen state
-      console.log('Current active screen:',
-        [...document.querySelectorAll('.screen.active')]
-          .map(s => s.id)
-          .join(', ') || 'None'
-      );
-      
-      // Add click debug to select-profile-btn
-      const profileBtn = elements['select-profile-btn'];
-      if (profileBtn) {
-        const originalClick = profileBtn.onclick;
-        profileBtn.addEventListener('click', (e) => {
-          console.log('=== select-profile-btn CLICKED ===');
-          console.log('Event target:', e.target.id);
-          console.log('Current screen before click:',
-            [...document.querySelectorAll('.screen.active')]
-              .map(s => s.id)
-              .join(', ')
-          );
-          
-          // Check what app.js will try to do
-          console.log('window.switchScreen exists:', typeof window.switchScreen);
-          
-          if (typeof window.switchScreen === 'function') {
-            console.log('Calling switchScreen("profile")...');
-            window.switchScreen('profile');
-          } else {
-            console.log('switchScreen not found in window object');
-          }
-        });
-      }
-    });
-  </script>
-
-  <script src="config.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
-
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -97,22 +27,22 @@
       <button id="select-profile-btn" class="btn-primary">Select Profile & Start</button>
     </div>
 
-<!-- Add this after the welcome screen in your HTML -->
-<div id="profile-screen" class="screen">
-  <h1>👥 Select Your Profile</h1>
-  <p class="description">Choose who's playing today</p>
-  
-  <div id="profiles-container" class="profiles-grid">
-    <!-- Profiles will be loaded from config.js -->
-  </div>
-  
-  <div class="navigation">
-    <button id="back-to-welcome-btn" class="btn-secondary">← Back</button>
-    <button id="start-game-btn" class="btn-primary" disabled>Start Challenge</button>
-  </div>
-</div> 
+    <!-- Profile Selection Screen -->
+    <div id="profile-screen" class="screen">
+      <h1>👥 Select Your Profile</h1>
+      <p class="description">Choose who's playing today</p>
+      
+      <div id="profiles-container" class="profiles-grid">
+        <!-- Profiles will be loaded from config.js -->
+      </div>
+      
+      <div class="navigation">
+        <button id="back-to-welcome-btn" class="btn-secondary">← Back</button>
+        <button id="start-game-btn" class="btn-primary" disabled>Start Challenge</button>
+      </div>
+    </div>
 
-   <!-- Question Screen -->
+    <!-- Question Screen -->
     <div id="question-screen" class="screen">
       <div class="question-header">
         <div class="profile-indicator" id="current-profile-indicator">
@@ -167,74 +97,137 @@
     </div>
 
     <!-- Results Screen -->
-<div class="score-display">
-  <h2>Your Score: <span id="final-score">0</span>/5</h2>
-  <div class="score-circle">
-    <svg width="120" height="120" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="54" fill="none" stroke="#e0e0e0" stroke-width="12"></circle>
-      <circle id="score-circle" cx="60" cy="60" r="54" fill="none" stroke="#667eea" stroke-width="12" 
-              stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="339.292" stroke-dashoffset="339.292"></circle>
-    </svg>
-    <div class="score-percent">0%</div>
+    <div id="results-screen" class="screen">
+      <div class="results-header">
+        <div class="profile-indicator">
+          <span class="profile-icon" id="results-profile-icon">👨‍🦳</span>
+          <span class="profile-name" id="results-profile-name">Dad</span>
+        </div>
+        <h1>🎯 Challenge Complete!</h1>
+      </div>
+      
+      <div class="score-display">
+        <h2>Your Score: <span id="final-score">0</span>/5</h2>
+        <div class="score-circle">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#e0e0e0" stroke-width="12"></circle>
+            <circle id="score-circle" cx="60" cy="60" r="54" fill="none" stroke="#667eea" stroke-width="12" 
+                    stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="339.292" stroke-dashoffset="339.292"></circle>
+          </svg>
+          <div class="score-percent">0%</div>
+        </div>
+      </div>
+      
+      <!-- Statistics Container -->
+      <div class="stats-container">
+        <div class="stat-box">
+          <div class="stat-label">Today's Score</div>
+          <div class="stat-value" id="today-score">0/5</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Average Score</div>
+          <div class="stat-value" id="average-score">0/5</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Games Played</div>
+          <div class="stat-value" id="games-played">0</div>
+        </div>
+      </div>
+      
+      <div id="result-details">
+        <!-- Question results will be added here -->
+      </div>
+      
+      <div class="result-message">
+        <p id="encouragement-message"></p>
+      </div>
+      
+      <div class="navigation">
+        <button id="restart-btn" class="btn-primary">Play Again</button>
+        <button id="new-profile-btn" class="btn-secondary">New Player</button>
+        <button id="share-btn" class="btn-secondary">Share Score</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- Add average score display -->
-<div class="stats-container">
-  <div class="stat-box">
-    <div class="stat-label">Today's Score</div>
-    <div class="stat-value" id="today-score">0/5</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-label">Average Score</div>
-    <div class="stat-value" id="average-score">0/5</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-label">Games Played</div>
-    <div class="stat-value" id="games-played">0</div>
-  </div>
-</div>
-</div> <!-- This closes the container div -->
-
-  <!-- DEBUG SCRIPT - ADD THIS FIRST -->
+  <!-- Debug Script -->
   <script>
-    console.log('=== DEBUGGING FILE LOADING ===');
-    console.log('Page loaded at:', new Date().toLocaleTimeString());
+    console.log('=== PAGE LOAD DEBUG ===');
+    console.log('Window loaded at:', new Date().toLocaleTimeString());
     
-    // Check if config.js loads
-    const debugScript = document.createElement('script');
-    debugScript.src = 'config.js';
-    debugScript.onload = function() {
-      console.log('✅ config.js loaded successfully');
-      console.log('window.profiles exists:', typeof window.profiles !== 'undefined');
-      console.log('Number of profiles:', window.profiles ? window.profiles.length : 'none');
-      console.log('Full profiles:', window.profiles);
+    // Check if all required elements exist
+    const checkElements = () => {
+      const elements = {
+        'welcome-screen': document.getElementById('welcome-screen'),
+        'profile-screen': document.getElementById('profile-screen'),
+        'question-screen': document.getElementById('question-screen'),
+        'results-screen': document.getElementById('results-screen'),
+        'select-profile-btn': document.getElementById('select-profile-btn'),
+        'back-to-welcome-btn': document.getElementById('back-to-welcome-btn'),
+        'start-game-btn': document.getElementById('start-game-btn'),
+        'submit-answer-btn': document.getElementById('submit-answer-btn'),
+        'skip-btn': document.getElementById('skip-btn'),
+        'answer-input': document.getElementById('answer-input'),
+        'restart-btn': document.getElementById('restart-btn'),
+        'new-profile-btn': document.getElementById('new-profile-btn'),
+        'share-btn': document.getElementById('share-btn')
+      };
+      
+      console.log('Checking elements...');
+      Object.entries(elements).forEach(([id, element]) => {
+        console.log(`${id}:`, element ? '✅ Found' : '❌ NOT FOUND');
+      });
+      
+      return elements;
     };
-    debugScript.onerror = function() {
-      console.error('❌ ERROR: config.js failed to load');
-      console.error('Check if file exists in correct location');
-      // Try to fetch the file to see what's wrong
-      fetch('config.js')
-        .then(response => {
-          console.log('Fetch response status:', response.status);
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+    
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM fully loaded');
+      const elements = checkElements();
+      
+      // Check initial screen state
+      console.log('Current active screen:',
+        [...document.querySelectorAll('.screen.active')]
+          .map(s => s.id)
+          .join(', ') || 'None'
+      );
+      
+      // Add click debug to select-profile-btn
+      const profileBtn = elements['select-profile-btn'];
+      if (profileBtn) {
+        profileBtn.addEventListener('click', (e) => {
+          console.log('=== select-profile-btn CLICKED ===');
+          console.log('Event target:', e.target.id);
+          console.log('Current screen before click:',
+            [...document.querySelectorAll('.screen.active')]
+              .map(s => s.id)
+              .join(', ')
+          );
+          
+          // Check what app.js will try to do
+          console.log('window.switchScreen exists:', typeof window.switchScreen);
+          
+          if (typeof window.switchScreen === 'function') {
+            console.log('Calling switchScreen("profile")...');
+            window.switchScreen('profile');
+          } else {
+            console.log('switchScreen not found in window object');
+            // Manual fallback
+            document.querySelectorAll('.screen').forEach(screen => {
+              screen.classList.remove('active');
+            });
+            const profileScreen = document.getElementById('profile-screen');
+            if (profileScreen) {
+              profileScreen.classList.add('active');
+              console.log('Manually activated profile screen');
+            }
           }
-          return response.text();
-        })
-        .then(text => {
-          console.log('config.js content (first 500 chars):', text.substring(0, 500));
-        })
-        .catch(error => {
-          console.error('Cannot fetch config.js:', error.message);
         });
-    };
-    
-    // Add it to the page
-    document.head.appendChild(debugScript);
+      }
+    });
   </script>
 
-  <!-- Your actual scripts -->
   <script src="config.js"></script>
   <script src="app.js"></script>
 </body>

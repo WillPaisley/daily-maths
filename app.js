@@ -198,18 +198,21 @@ function formatDate() {
   return new Date().toLocaleDateString('en-US', options);
 }
 
-// Switch screen
+// Switch screen - UPDATED WITH NULL CHECK
 function switchScreen(screenName) {
   console.log(`🔀 switchScreen called with: "${screenName}"`);
   
   // Debug: Show available screens
   console.log('Available screens:', Object.keys(screens));
   
+  // Only process screens that exist
   Object.values(screens).forEach(screen => {
-    const wasActive = screen.classList.contains('active');
-    screen.classList.remove('active');
-    if (wasActive && screen.id) {
-      console.log(`  Removed active from: ${screen.id}`);
+    if (screen) {  // Check if screen exists before using it
+      const wasActive = screen.classList.contains('active');
+      screen.classList.remove('active');
+      if (wasActive && screen.id) {
+        console.log(`  Removed active from: ${screen.id}`);
+      }
     }
   });
   
@@ -279,10 +282,10 @@ function updateTimerDisplay() {
   const offset = circumference - (state.timeLeft / 100) * circumference;
   elements.timerCircle.style.strokeDashoffset = offset;
   
-  // Change color based on time left
-  if (state.timeLeft <= 10) {
+  // Change color based on time left (adjusted for 100 seconds)
+  if (state.timeLeft <= 20) {  // Red at 20 seconds (was 10)
     elements.timerCircle.style.stroke = '#ef4444'; // Red
-  } else if (state.timeLeft <= 30) {
+  } else if (state.timeLeft <= 50) {  // Orange at 50 seconds (was 30)
     elements.timerCircle.style.stroke = '#FF9800'; // Orange
   } else {
     elements.timerCircle.style.stroke = '#4CAF50'; // Green
@@ -323,41 +326,41 @@ function renderProfiles() {
 }
 
 // Select a profile
-  function selectProfile(profileId) {
-    // Clear previous selection
-    document.querySelectorAll('.profile-card').forEach(card => {
-      card.classList.remove('selected');
-    });
-    
-    // Mark selected profile
-    const selectedCard = document.querySelector(`[data-profile-id="${profileId}"]`);
-    selectedCard.classList.add('selected');
-    
-    // Find and set current profile
-    state.currentProfile = state.profiles.find(p => p.id === profileId);
-    
-    // Get profile statistics
-    const stats = getProfileStatistics(profileId);
-    
-    // Update profile card with statistics
-    const statsElement = selectedCard.querySelector('.profile-difficulty') || 
-                        document.createElement('p');
-    if (!selectedCard.querySelector('.profile-difficulty')) {
-      statsElement.className = 'profile-difficulty';
-      selectedCard.appendChild(statsElement);
-    }
-    
-    statsElement.innerHTML = `
-      <span>${state.currentProfile.difficulty.charAt(0).toUpperCase() + state.currentProfile.difficulty.slice(1)} Difficulty</span><br>
-      <small>Avg: ${stats.averageScore.toFixed(1)}/5 | Games: ${stats.totalGames}</small>
-    `;
-    
-    // Enable start button
-    elements.startGameBtn.disabled = false;
-    
-    // Update start button text
-    elements.startGameBtn.textContent = `Start as ${state.currentProfile.name}`;
+function selectProfile(profileId) {
+  // Clear previous selection
+  document.querySelectorAll('.profile-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  
+  // Mark selected profile
+  const selectedCard = document.querySelector(`[data-profile-id="${profileId}"]`);
+  selectedCard.classList.add('selected');
+  
+  // Find and set current profile
+  state.currentProfile = state.profiles.find(p => p.id === profileId);
+  
+  // Get profile statistics
+  const stats = getProfileStatistics(profileId);
+  
+  // Update profile card with statistics
+  const statsElement = selectedCard.querySelector('.profile-difficulty') || 
+                      document.createElement('p');
+  if (!selectedCard.querySelector('.profile-difficulty')) {
+    statsElement.className = 'profile-difficulty';
+    selectedCard.appendChild(statsElement);
   }
+  
+  statsElement.innerHTML = `
+    <span>${state.currentProfile.difficulty.charAt(0).toUpperCase() + state.currentProfile.difficulty.slice(1)} Difficulty</span><br>
+    <small>Avg: ${stats.averageScore.toFixed(1)}/5 | Games: ${stats.totalGames}</small>
+  `;
+  
+  // Enable start button
+  elements.startGameBtn.disabled = false;
+  
+  // Update start button text
+  elements.startGameBtn.textContent = `Start as ${state.currentProfile.name}`;
+}
 
 // Render current question
 function renderQuestion() {
@@ -479,6 +482,18 @@ function showResults() {
   
   // Update final score
   elements.finalScore.textContent = state.score;
+  
+  // Save today's result and get statistics
+  const stats = saveProfileResult(state.currentProfile.id, state.score);
+  
+  // Update statistics display (if elements exist)
+  const todayScoreEl = document.getElementById('today-score');
+  const averageScoreEl = document.getElementById('average-score');
+  const gamesPlayedEl = document.getElementById('games-played');
+  
+  if (todayScoreEl) todayScoreEl.textContent = `${stats.todayScore}/5`;
+  if (averageScoreEl) averageScoreEl.textContent = `${stats.averageScore.toFixed(1)}/5`;
+  if (gamesPlayedEl) gamesPlayedEl.textContent = stats.totalGames;
   
   // Calculate percentage for circle animation
   const percentage = (state.score / state.gameSettings.dailyQuestions) * 100;
@@ -694,6 +709,8 @@ function init() {
   elements.answerInput.addEventListener('input', (e) => {
     e.target.value = e.target.value.replace(/[^0-9]/g, '');
   });
+  
+  console.log('✅ App initialization complete');
 }
 
 // Make switchScreen available globally for debugging
