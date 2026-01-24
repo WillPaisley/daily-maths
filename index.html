@@ -25,31 +25,34 @@
         </ul>
       </div>
       <button id="select-profile-btn" class="btn-primary">Select Profile & Start</button>
+      <button id="see-results-btn" class="btn-secondary">See Results</button>
     </div>
 
-<div id="all-results-screen" class="screen">
-  <h1>📊 All Players Results</h1>
-  <p class="description">See statistics for all players</p>
-  
-  <div id="all-results-container" class="all-results-container">
-    <!-- Results will be populated here -->
-  </div>
-  
-  <div class="summary-stats">
-    <div class="summary-stat">
-      <div class="summary-label">Total Games Played</div>
-      <div class="summary-value" id="total-games">0</div>
+    <!-- All Results Screen -->
+    <div id="all-results-screen" class="screen">
+      <h1>📊 All Players Results</h1>
+      <p class="description">See statistics for all players</p>
+      
+      <div id="all-results-container" class="all-results-container">
+        <!-- Results will be populated here -->
+      </div>
+      
+      <div class="summary-stats">
+        <div class="summary-stat">
+          <div class="summary-label">Total Games Played</div>
+          <div class="summary-value" id="total-games">0</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-label">Overall Average</div>
+          <div class="summary-value" id="overall-average">0/5</div>
+        </div>
+      </div>
+      
+      <div class="navigation">
+        <button id="back-to-welcome-btn2" class="btn-secondary">← Back to Welcome</button>
+        <button id="export-results-btn" class="btn-secondary">Export Results</button>
+      </div>
     </div>
-    <div class="summary-stat">
-      <div class="summary-label">Overall Average</div>
-      <div class="summary-value" id="overall-average">0/5</div>
-    </div>
-  </div>
-  
-  <div class="navigation">
-    <button id="back-to-welcome-btn2" class="btn-secondary">← Back to Welcome</button>
-  </div>
-</div>
 
     <!-- Profile Selection Screen -->
     <div id="profile-screen" class="screen">
@@ -63,7 +66,6 @@
       <div class="navigation">
         <button id="back-to-welcome-btn" class="btn-secondary">← Back</button>
         <button id="start-game-btn" class="btn-primary" disabled>Start Challenge</button>
-        <button id="see-results-btn" class="btn-secondary">See Results</button>
       </div>
     </div>
 
@@ -174,84 +176,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Debug Script -->
-  <script>
-    console.log('=== PAGE LOAD DEBUG ===');
-    console.log('Window loaded at:', new Date().toLocaleTimeString());
-    
-    // Check if all required elements exist
-    const checkElements = () => {
-      const elements = {
-        'welcome-screen': document.getElementById('welcome-screen'),
-        'profile-screen': document.getElementById('profile-screen'),
-        'question-screen': document.getElementById('question-screen'),
-        'results-screen': document.getElementById('results-screen'),
-        'select-profile-btn': document.getElementById('select-profile-btn'),
-        'back-to-welcome-btn': document.getElementById('back-to-welcome-btn'),
-        'start-game-btn': document.getElementById('start-game-btn'),
-        'submit-answer-btn': document.getElementById('submit-answer-btn'),
-        'skip-btn': document.getElementById('skip-btn'),
-        'answer-input': document.getElementById('answer-input'),
-        'restart-btn': document.getElementById('restart-btn'),
-        'new-profile-btn': document.getElementById('new-profile-btn'),
-        'share-btn': document.getElementById('share-btn')
-      };
-      
-      console.log('Checking elements...');
-      Object.entries(elements).forEach(([id, element]) => {
-        console.log(`${id}:`, element ? '✅ Found' : '❌ NOT FOUND');
-      });
-      
-      return elements;
-    };
-    
-    // Wait for DOM to be fully loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM fully loaded');
-      const elements = checkElements();
-      
-      // Check initial screen state
-      console.log('Current active screen:',
-        [...document.querySelectorAll('.screen.active')]
-          .map(s => s.id)
-          .join(', ') || 'None'
-      );
-      
-      // Add click debug to select-profile-btn
-      const profileBtn = elements['select-profile-btn'];
-      if (profileBtn) {
-        profileBtn.addEventListener('click', (e) => {
-          console.log('=== select-profile-btn CLICKED ===');
-          console.log('Event target:', e.target.id);
-          console.log('Current screen before click:',
-            [...document.querySelectorAll('.screen.active')]
-              .map(s => s.id)
-              .join(', ')
-          );
-          
-          // Check what app.js will try to do
-          console.log('window.switchScreen exists:', typeof window.switchScreen);
-          
-          if (typeof window.switchScreen === 'function') {
-            console.log('Calling switchScreen("profile")...');
-            window.switchScreen('profile');
-          } else {
-            console.log('switchScreen not found in window object');
-            // Manual fallback
-            document.querySelectorAll('.screen').forEach(screen => {
-              screen.classList.remove('active');
-            });
-            const profileScreen = document.getElementById('profile-screen');
-            if (profileScreen) {
-              profileScreen.classList.add('active');
-              console.log('Manually activated profile screen');
-            }
-          }
-        });
-      }
-    });
-  </script>
 
   <script src="config.js"></script>
   <script src="app.js"></script>

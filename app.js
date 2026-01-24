@@ -5,6 +5,7 @@ console.log('Welcome screen:', document.getElementById('welcome-screen'));
 console.log('Profile screen:', document.getElementById('profile-screen'));
 console.log('Question screen:', document.getElementById('question-screen'));
 console.log('Results screen:', document.getElementById('results-screen'));
+console.log('All results screen:', document.getElementById('all-results-screen'));
 
 const state = {
   currentQuestion: 0,
@@ -104,17 +105,19 @@ function getProfileStatistics(profileId) {
 // DOM Elements
 const screens = {
   welcome: document.getElementById('welcome-screen'),
+  allResults: document.getElementById('all-results-screen'),
   profile: document.getElementById('profile-screen'),
   question: document.getElementById('question-screen'),
   results: document.getElementById('results-screen')
-  allResults: document.getElementById('all-results-screen')
 };
 
 const elements = {
   currentDate: document.getElementById('current-date'),
   selectProfileBtn: document.getElementById('select-profile-btn'),
+  seeResultsBtn: document.getElementById('see-results-btn'),
   profilesContainer: document.getElementById('profiles-container'),
   backToWelcomeBtn: document.getElementById('back-to-welcome-btn'),
+  backToWelcomeBtn2: document.getElementById('back-to-welcome-btn2'),
   startGameBtn: document.getElementById('start-game-btn'),
   questionText: document.getElementById('question-text'),
   answerInput: document.getElementById('answer-input'),
@@ -128,19 +131,122 @@ const elements = {
   restartBtn: document.getElementById('restart-btn'),
   newProfileBtn: document.getElementById('new-profile-btn'),
   shareBtn: document.getElementById('share-btn'),
+  exportResultsBtn: document.getElementById('export-results-btn'),
   scoreCircle: document.getElementById('score-circle'),
   currentProfileName: document.getElementById('current-profile-name'),
   currentProfileIndicator: document.getElementById('current-profile-indicator'),
   resultsProfileName: document.getElementById('results-profile-name'),
   resultsProfileIcon: document.getElementById('results-profile-icon'),
   timerCircle: document.getElementById('timer-circle'),
-  timerSeconds: document.getElementById('timer-seconds')
-  seeResultsBtn: document.getElementById('see-results-btn'),
+  timerSeconds: document.getElementById('timer-seconds'),
   allResultsContainer: document.getElementById('all-results-container'),
-  backToWelcomeBtn2: document.getElementById('back-to-welcome-btn2'),
   totalGames: document.getElementById('total-games'),
   overallAverage: document.getElementById('overall-average')
 };
+
+// Seed-based random number generator
+function createSeededRandom(seed) {
+  return function() {
+    seed = Math.sin(seed) * 10000;
+    return seed - Math.floor(seed);
+  };
+}
+
+// Generate multiplication question based on difficulty
+function generateMultiplication(rng, difficulty) {
+  const range = state.gameSettings.numberRange[difficulty];
+  const a = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
+  const b = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
+  const correctAnswer = a * b;
+  
+  return {
+    question: `${a} × ${b} = ?`,
+    correctAnswer: correctAnswer,
+    type: 'multiplication'
+  };
+}
+
+// Generate division question based on difficulty
+function generateDivision(rng, difficulty) {
+  const range = state.gameSettings.numberRange[difficulty];
+  const divisor = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
+  const quotient = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
+  const dividend = divisor * quotient;
+  const correctAnswer = quotient;
+  
+  return {
+    question: `${dividend} ÷ ${divisor} = ?`,
+    correctAnswer: correctAnswer,
+    type: 'division'
+  };
+}
+
+// Generate today's questions based on profile difficulty
+function generateDailyQuestions(profile) {
+  const today = new Date().toISOString().slice(0, 10);
+  const seed = Array.from(today).reduce((acc, char) => acc + char.charCodeAt(0), 0) + profile.id;
+  const rng = createSeededRandom(seed);
+  const difficulty = profile.difficulty;
+  
+  const questions = [];
+  for (let i = 0; i < state.gameSettings.dailyQuestions; i++) {
+    if (i % 2 === 0) {
+      questions.push(generateMultiplication(rng, difficulty));
+    } else {
+      questions.push(generateDivision(rng, difficulty));
+    }
+  }
+  
+  return questions;
+}
+
+// Format date
+function formatDate() {
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date().toLocaleDateString('en-US', options);
+}
+
+// Switch screen - UPDATED WITH NULL CHECK
+function switchScreen(screenName) {
+  console.log(`🔀 switchScreen called with: "${screenName}"`);
+  
+  // Debug: Show available screens
+  console.log('Available screens:', Object.keys(screens));
+  
+  // Only process screens that exist
+  Object.values(screens).forEach(screen => {
+    if (screen) {  // Check if screen exists before using it
+      const wasActive = screen.classList.contains('active');
+      screen.classList.remove('active');
+      if (wasActive && screen.id) {
+        console.log(`  Removed active from: ${screen.id}`);
+      }
+    }
+  });
+  
+  const targetScreen = screens[screenName];
+  if (targetScreen) {
+    console.log(`✅ Activating screen: ${screenName} (${targetScreen.id})`);
+    targetScreen.classList.add('active');
+  } else {
+    console.error(`❌ Screen "${screenName}" not found in screens object!`);
+    console.error('Available screens:', Object.keys(screens));
+    
+    // Try to find screen by ID as fallback
+    const screenById = document.getElementById(`${screenName}-screen`);
+    if (screenById) {
+      console.log(`Found screen by ID: ${screenById.id}, activating it`);
+      screenById.classList.add('active');
+    }
+  }
+  
+  // Log current active screen after switch
+  setTimeout(() => {
+    const activeScreens = [...document.querySelectorAll('.screen.active')];
+    console.log(`Active screens after switch:`, 
+      activeScreens.map(s => s.id).join(', ') || 'None');
+  }, 10);
+}
 
 // Function to get all players' statistics
 function getAllPlayersStats() {
@@ -264,108 +370,28 @@ function displayAllResults() {
   switchScreen('allResults');
 }
 
-// Seed-based random number generator
-function createSeededRandom(seed) {
-  return function() {
-    seed = Math.sin(seed) * 10000;
-    return seed - Math.floor(seed);
-  };
-}
-
-// Generate multiplication question based on difficulty
-function generateMultiplication(rng, difficulty) {
-  const range = state.gameSettings.numberRange[difficulty];
-  const a = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
-  const b = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
-  const correctAnswer = a * b;
+// Export results as CSV
+function exportResults() {
+  const stats = getAllPlayersStats();
+  let csv = 'Player,Avg Score/5,Games Played,Questions Answered,Accuracy%,Difficulty\n';
   
-  return {
-    question: `${a} × ${b} = ?`,
-    correctAnswer: correctAnswer,
-    type: 'multiplication'
-  };
-}
-
-// Generate division question based on difficulty
-function generateDivision(rng, difficulty) {
-  const range = state.gameSettings.numberRange[difficulty];
-  const divisor = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
-  const quotient = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
-  const dividend = divisor * quotient;
-  const correctAnswer = quotient;
-  
-  return {
-    question: `${dividend} ÷ ${divisor} = ?`,
-    correctAnswer: correctAnswer,
-    type: 'division'
-  };
-}
-
-// Generate today's questions based on profile difficulty
-function generateDailyQuestions(profile) {
-  const today = new Date().toISOString().slice(0, 10);
-  const seed = Array.from(today).reduce((acc, char) => acc + char.charCodeAt(0), 0) + profile.id;
-  const rng = createSeededRandom(seed);
-  const difficulty = profile.difficulty;
-  
-  const questions = [];
-  for (let i = 0; i < state.gameSettings.dailyQuestions; i++) {
-    if (i % 2 === 0) {
-      questions.push(generateMultiplication(rng, difficulty));
-    } else {
-      questions.push(generateDivision(rng, difficulty));
-    }
-  }
-  
-  return questions;
-}
-
-// Format date
-function formatDate() {
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  return new Date().toLocaleDateString('en-US', options);
-}
-
-// Switch screen - UPDATED WITH NULL CHECK
-function switchScreen(screenName) {
-  console.log(`🔀 switchScreen called with: "${screenName}"`);
-  
-  // Debug: Show available screens
-  console.log('Available screens:', Object.keys(screens));
-  
-  // Only process screens that exist
-  Object.values(screens).forEach(screen => {
-    if (screen) {  // Check if screen exists before using it
-      const wasActive = screen.classList.contains('active');
-      screen.classList.remove('active');
-      if (wasActive && screen.id) {
-        console.log(`  Removed active from: ${screen.id}`);
-      }
-    }
+  stats.playerStats.forEach(player => {
+    csv += `"${player.name}",${player.averageScore.toFixed(1)},${player.totalGames},${player.questionsAnswered},${player.accuracy.toFixed(1)}%,${player.difficulty}\n`;
   });
   
-  const targetScreen = screens[screenName];
-  if (targetScreen) {
-    console.log(`✅ Activating screen: ${screenName} (${targetScreen.id})`);
-    targetScreen.classList.add('active');
-  } else {
-    console.error(`❌ Screen "${screenName}" not found in screens object!`);
-    console.error('Available screens:', Object.keys(screens));
-    
-    // Try to find screen by ID as fallback
-    const screenById = document.getElementById(`${screenName}-screen`);
-    if (screenById) {
-      console.log(`Found screen by ID: ${screenById.id}, activating it`);
-      screenById.classList.add('active');
-    }
-  }
+  // Add overall stats
+  csv += `\nOverall,${stats.overallStats.overallAverage.toFixed(1)},${stats.overallStats.totalGames},${stats.overallStats.totalQuestions},${stats.overallStats.overallAccuracy.toFixed(1)}%,-\n`;
   
-  // Log current active screen after switch
-  setTimeout(() => {
-    const activeScreens = [...document.querySelectorAll('.screen.active')];
-    console.log(`Active screens after switch:`, 
-      activeScreens.map(s => s.id).join(', ') || 'None');
-  }, 10);
+  // Create download link
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `math-game-results-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // Start the timer
@@ -722,10 +748,10 @@ function init() {
   // Debug: Log all screens
   console.log('Screens object:', {
     welcome: screens.welcome ? '✅ Found' : '❌ Missing',
+    allResults: screens.allResults ? '✅ Found' : '❌ Missing',
     profile: screens.profile ? '✅ Found' : '❌ Missing',
     question: screens.question ? '✅ Found' : '❌ Missing',
     results: screens.results ? '✅ Found' : '❌ Missing'
-    allResults: screens.allResults ? '✅ Found' : '❌ Missing'
   });
   
   // Load profiles and settings from config.js
@@ -772,14 +798,17 @@ function init() {
     console.log('📊 See Results button clicked');
     displayAllResults();
   });
-
-  // Back button from all results
-  elements.backToWelcomeBtn2.addEventListener('click', () => {
-    switchScreen('welcome');
-  });
-
+  
+  // Export Results button
+  elements.exportResultsBtn.addEventListener('click', exportResults);
+  
   // 2. Profile Screen -> Back to Welcome
   elements.backToWelcomeBtn.addEventListener('click', () => {
+    switchScreen('welcome');
+  });
+  
+  // All Results Screen -> Back to Welcome
+  elements.backToWelcomeBtn2.addEventListener('click', () => {
     switchScreen('welcome');
   });
   
