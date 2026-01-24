@@ -4,10 +4,12 @@ const state = {
   score: 0,
   userAnswers: [],
   questions: [],
-  selectedOption: null,
   currentProfile: null,
   profiles: [],
-  gameSettings: null
+  gameSettings: null,
+  timer: null,
+  timeLeft: 60,
+  isTimerRunning: false
 };
 
 // DOM Elements
@@ -25,9 +27,9 @@ const elements = {
   backToWelcomeBtn: document.getElementById('back-to-welcome-btn'),
   startGameBtn: document.getElementById('start-game-btn'),
   questionText: document.getElementById('question-text'),
-  optionsContainer: document.getElementById('options-container'),
-  submitBtn: document.getElementById('submit-btn'),
-  nextBtn: document.getElementById('next-btn'),
+  answerInput: document.getElementById('answer-input'),
+  submitAnswerBtn: document.getElementById('submit-answer-btn'),
+  skipBtn: document.getElementById('skip-btn'),
   currentQuestion: document.getElementById('current-question'),
   progressFill: document.getElementById('progress-fill'),
   finalScore: document.getElementById('final-score'),
@@ -40,7 +42,9 @@ const elements = {
   currentProfileName: document.getElementById('current-profile-name'),
   currentProfileIndicator: document.getElementById('current-profile-indicator'),
   resultsProfileName: document.getElementById('results-profile-name'),
-  resultsProfileIcon: document.getElementById('results-profile-icon')
+  resultsProfileIcon: document.getElementById('results-profile-icon'),
+  timerCircle: document.getElementById('timer-circle'),
+  timerSeconds: document.getElementById('timer-seconds')
 };
 
 // Seed-based random number generator
@@ -58,23 +62,9 @@ function generateMultiplication(rng, difficulty) {
   const b = Math.floor(rng() * (range.max - range.min + 1)) + range.min;
   const correctAnswer = a * b;
   
-  const options = [correctAnswer];
-  while (options.length < 4) {
-    const offset = Math.floor(correctAnswer * (rng() * 0.4 - 0.2));
-    const wrongAnswer = correctAnswer + offset;
-    
-    if (wrongAnswer !== correctAnswer && !options.includes(wrongAnswer)) {
-      options.push(wrongAnswer);
-    }
-  }
-  
-  shuffleArray(options, rng);
-  
   return {
     question: `${a} × ${b} = ?`,
     correctAnswer: correctAnswer,
-    options: options,
-    correctIndex: options.indexOf(correctAnswer),
     type: 'multiplication'
   };
 }
@@ -87,37 +77,11 @@ function generateDivision(rng, difficulty) {
   const dividend = divisor * quotient;
   const correctAnswer = quotient;
   
-  const options = [correctAnswer];
-  while (options.length < 4) {
-    let wrongAnswer;
-    if (rng() > 0.5) {
-      wrongAnswer = Math.floor(dividend / (divisor + Math.floor(rng() * 10 - 5)));
-    } else {
-      wrongAnswer = correctAnswer + Math.floor(rng() * 20 - 10);
-    }
-    
-    if (wrongAnswer > 0 && wrongAnswer !== correctAnswer && !options.includes(wrongAnswer)) {
-      options.push(wrongAnswer);
-    }
-  }
-  
-  shuffleArray(options, rng);
-  
   return {
     question: `${dividend} ÷ ${divisor} = ?`,
     correctAnswer: correctAnswer,
-    options: options,
-    correctIndex: options.indexOf(correctAnswer),
     type: 'division'
   };
-}
-
-// Fisher-Yates shuffle
-function shuffleArray(array, rng) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
 }
 
 // Generate today's questions based on profile difficulty
@@ -151,6 +115,67 @@ function switchScreen(screenName) {
     screen.classList.remove('active');
   });
   screens[screenName].classList.add('active');
+}
+
+// Start the timer
+function startTimer() {
+  // Reset timer state
+  state.timeLeft = 60;
+  state.isTimerRunning = true;
+  
+  // Update timer display
+  updateTimerDisplay();
+  
+  // Set up timer circle animation
+  const circumference = 2 * Math.PI * 54;
+  elements.timerCircle.style.strokeDasharray = circumference;
+  elements.timerCircle.style.strokeDashoffset = 0;
+  
+  // Clear any existing timer
+  if (state.timer) {
+    clearInterval(state.timer);
+  }
+  
+  // Start countdown
+  state.timer = setInterval(() => {
+    state.timeLeft--;
+    updateTimerDisplay();
+    
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timer);
+      state.isTimerRunning = false;
+      // Auto-submit when time runs out
+      submitAnswer();
+    }
+  }, 1000);
+}
+
+// Update timer display
+function updateTimerDisplay() {
+  elements.timerSeconds.textContent = state.timeLeft;
+  
+  // Update timer circle
+  const circumference = 2 * Math.PI * 54;
+  const offset = circumference - (state.timeLeft / 60) * circumference;
+  elements.timerCircle.style.strokeDashoffset = offset;
+  
+  // Change color based on time left
+  if (state.timeLeft <= 10) {
+    elements.timerCircle.style.stroke = '#ef4444'; // Red
+  } else if (state.timeLeft <= 30) {
+    elements.timerCircle.style.stroke = '#FF9800'; // Orange
+  } else {
+    elements.timerCircle.style.stroke = '#4CAF50'; // Green
+  }
+}
+
+// Stop the timer
+function stopTimer() {
+  if (state.timer) {
+    clearInterval(state.timer);
+    state.timer = null;
+  }
+  state.isTimerRunning = false;
 }
 
 // Render profile selection screen
@@ -209,49 +234,34 @@ function renderQuestion() {
   // Set question text
   elements.questionText.textContent = question.question;
   
-  // Clear and render options
-  elements.optionsContainer.innerHTML = '';
-  question.options.forEach((option, index) => {
-    const button = document.createElement('button');
-    button.className = 'option-btn';
-    button.textContent = option.toLocaleString();
-    button.dataset.index = index;
-    
-    button.addEventListener('click', () => selectOption(index, button));
-    
-    elements.optionsContainer.appendChild(button);
-  });
+  // Clear input field
+  elements.answerInput.value = '';
+  elements.answerInput.disabled = false;
+  elements.answerInput.focus();
   
-  // Reset selection
-  state.selectedOption = null;
-  elements.submitBtn.disabled = true;
-  elements.nextBtn.classList.add('hidden');
+  // Update button text
+  elements.submitAnswerBtn.textContent = 'Submit Answer';
+  elements.submitAnswerBtn.disabled = false;
   
-  // Clear any existing selection styles
-  document.querySelectorAll('.option-btn').forEach(btn => {
-    btn.classList.remove('selected');
-  });
-}
-
-// Select an option
-function selectOption(index, button) {
-  // Clear previous selection
-  document.querySelectorAll('.option-btn').forEach(btn => {
-    btn.classList.remove('selected');
-  });
+  // Stop any existing timer
+  stopTimer();
   
-  // Mark selected option
-  button.classList.add('selected');
-  state.selectedOption = index;
-  elements.submitBtn.disabled = false;
+  // Start new timer
+  startTimer();
 }
 
 // Submit answer
 function submitAnswer() {
-  if (state.selectedOption === null) return;
+  if (!state.isTimerRunning && state.timeLeft > 0) {
+    return; // Don't submit if timer already expired
+  }
+  
+  // Stop the timer
+  stopTimer();
   
   const question = state.questions[state.currentQuestion];
-  const isCorrect = state.selectedOption === question.correctIndex;
+  const userAnswer = parseInt(elements.answerInput.value.trim());
+  const isCorrect = userAnswer === question.correctAnswer;
   
   // Update score
   if (isCorrect) {
@@ -261,26 +271,57 @@ function submitAnswer() {
   // Store user answer
   state.userAnswers.push({
     question: question.question,
-    userAnswer: question.options[state.selectedOption],
+    userAnswer: userAnswer,
     correctAnswer: question.correctAnswer,
     isCorrect: isCorrect,
-    selectedIndex: state.selectedOption,
-    type: question.type
+    timeLeft: state.timeLeft
   });
   
-  // Show correct/incorrect styling
-  document.querySelectorAll('.option-btn').forEach((btn, index) => {
-    if (index === question.correctIndex) {
-      btn.classList.add('correct');
-    } else if (index === state.selectedOption && !isCorrect) {
-      btn.classList.add('incorrect');
-    }
-    btn.disabled = true;
+  // Disable input and show result
+  elements.answerInput.disabled = true;
+  elements.submitAnswerBtn.disabled = true;
+  
+  // Show feedback
+  if (isCorrect) {
+    elements.answerInput.classList.add('correct-answer');
+    elements.submitAnswerBtn.textContent = '✓ Correct!';
+  } else {
+    elements.answerInput.classList.add('incorrect-answer');
+    elements.submitAnswerBtn.textContent = `✗ Correct: ${question.correctAnswer}`;
+  }
+  
+  // Move to next question after a delay
+  setTimeout(() => {
+    nextQuestion();
+  }, 1500);
+}
+
+// Skip question
+function skipQuestion() {
+  // Stop the timer
+  stopTimer();
+  
+  const question = state.questions[state.currentQuestion];
+  
+  // Store user answer as skipped
+  state.userAnswers.push({
+    question: question.question,
+    userAnswer: null,
+    correctAnswer: question.correctAnswer,
+    isCorrect: false,
+    timeLeft: state.timeLeft,
+    skipped: true
   });
   
-  // Show next button
-  elements.nextBtn.classList.remove('hidden');
-  elements.submitBtn.disabled = true;
+  // Show feedback
+  elements.answerInput.disabled = true;
+  elements.submitAnswerBtn.textContent = `Skipped (Answer: ${question.correctAnswer})`;
+  elements.submitAnswerBtn.disabled = true;
+  
+  // Move to next question after a delay
+  setTimeout(() => {
+    nextQuestion();
+  }, 1500);
 }
 
 // Move to next question
@@ -324,13 +365,21 @@ function showResults() {
     const difficultyClass = result.type === 'multiplication' ? 'multiplication' : 'division';
     const typeIcon = result.type === 'multiplication' ? '×' : '÷';
     
+    let answerText = '';
+    if (result.skipped) {
+      answerText = '⏭️ Skipped';
+    } else if (result.isCorrect) {
+      answerText = `✓ Correct! (${result.timeLeft}s left)`;
+    } else {
+      answerText = `✗ You answered ${result.userAnswer}, correct was ${result.correctAnswer}`;
+    }
+    
     resultDiv.innerHTML = `
       <div class="question-type ${difficultyClass}">${typeIcon}</div>
       <div class="question-content">
         <div class="question-text">Q${index + 1}: ${result.question}</div>
         <div class="question-answer">
-          ${result.isCorrect ? '✓' : '✗'} 
-          ${result.isCorrect ? 'Correct!' : `You chose ${result.userAnswer}, correct was ${result.correctAnswer}`}
+          ${answerText}
         </div>
       </div>
     `;
@@ -379,7 +428,7 @@ function resetGameState() {
   state.currentQuestion = 0;
   state.score = 0;
   state.userAnswers = [];
-  state.selectedOption = null;
+  stopTimer();
   
   // Generate new questions for current profile
   if (state.currentProfile) {
@@ -390,7 +439,6 @@ function resetGameState() {
 // Initialize app
 function init() {
   // Load profiles and settings from config.js
-  // These are defined in config.js which is loaded before app.js
   state.profiles = window.profiles || [];
   state.gameSettings = window.gameSettings || {
     dailyQuestions: 5,
@@ -417,7 +465,6 @@ function init() {
   
   // Event listeners
   elements.selectProfileBtn.addEventListener('click', () => switchScreen('profile'));
-  
   elements.backToWelcomeBtn.addEventListener('click', () => switchScreen('welcome'));
   
   elements.startGameBtn.addEventListener('click', () => {
@@ -440,8 +487,23 @@ function init() {
     renderQuestion();
   });
   
-  elements.submitBtn.addEventListener('click', submitAnswer);
-  elements.nextBtn.addEventListener('click', nextQuestion);
+  // Submit answer button
+  elements.submitAnswerBtn.addEventListener('click', submitAnswer);
+  
+  // Skip question button
+  elements.skipBtn.addEventListener('click', skipQuestion);
+  
+  // Enter key to submit answer
+  elements.answerInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      submitAnswer();
+    }
+  });
+  
+  // Only allow numbers in input
+  elements.answerInput.addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+  });
   
   elements.restartBtn.addEventListener('click', () => {
     resetGameState();

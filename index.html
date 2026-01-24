@@ -18,7 +18,8 @@
         <ul>
           <li>5 questions total</li>
           <li>Two-digit multiplication & division</li>
-          <li>Multiple choice answers</li>
+          <li>60-second timer per question</li>
+          <li>Type your answer in the box</li>
           <li>Same questions for everyone today</li>
           <li>Different profiles can track progress</li>
         </ul>
@@ -56,15 +57,42 @@
         </div>
       </div>
       
+      <!-- Timer Display -->
+      <div class="timer-container">
+        <div class="timer-circle">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#e0e0e0" stroke-width="8"></circle>
+            <circle id="timer-circle" cx="60" cy="60" r="54" fill="none" stroke="#4CAF50" stroke-width="8" 
+                    stroke-linecap="round" transform="rotate(-90 60 60)"></circle>
+          </svg>
+          <div class="timer-text">
+            <span id="timer-seconds">60</span>
+            <small>seconds</small>
+          </div>
+        </div>
+      </div>
+      
       <h2 id="question-text"></h2>
       
-      <div id="options-container" class="options-grid">
-        <!-- Options will be generated here -->
+      <!-- Answer Input (replaces multiple choice) -->
+      <div class="answer-input-container">
+        <input 
+          type="number" 
+          id="answer-input" 
+          class="answer-input" 
+          placeholder="Type your answer here..."
+          autocomplete="off"
+          inputmode="numeric"
+        />
+        <button id="submit-answer-btn" class="btn-primary">Submit Answer</button>
+      </div>
+      
+      <div class="hint">
+        <small>Press Enter to submit your answer</small>
       </div>
       
       <div class="navigation">
-        <button id="submit-btn" class="btn-primary" disabled>Submit Answer</button>
-        <button id="next-btn" class="btn-secondary hidden">Next Question →</button>
+        <button id="skip-btn" class="btn-secondary">Skip Question (no points)</button>
       </div>
     </div>
 
