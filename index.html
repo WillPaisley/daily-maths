@@ -27,22 +27,22 @@
       <button id="select-profile-btn" class="btn-primary">Select Profile & Start</button>
     </div>
 
-    <!-- Profile Selection Screen -->
-    <div id="profile-screen" class="screen">
-      <h1>👥 Select Your Profile</h1>
-      <p class="description">Choose who's playing today</p>
-      
-      <div id="profiles-container" class="profiles-grid">
-        <!-- Profiles will be loaded from config.js -->
-      </div>
-      
-      <div class="navigation">
-        <button id="back-to-welcome-btn" class="btn-secondary">← Back</button>
-        <button id="start-game-btn" class="btn-primary" disabled>Start Challenge</button>
-      </div>
-    </div>
+<!-- Add this after the welcome screen in your HTML -->
+<div id="profile-screen" class="screen">
+  <h1>👥 Select Your Profile</h1>
+  <p class="description">Choose who's playing today</p>
+  
+  <div id="profiles-container" class="profiles-grid">
+    <!-- Profiles will be loaded from config.js -->
+  </div>
+  
+  <div class="navigation">
+    <button id="back-to-welcome-btn" class="btn-secondary">← Back</button>
+    <button id="start-game-btn" class="btn-primary" disabled>Start Challenge</button>
+  </div>
+</div> 
 
-    <!-- Question Screen -->
+   <!-- Question Screen -->
     <div id="question-screen" class="screen">
       <div class="question-header">
         <div class="profile-indicator" id="current-profile-indicator">
