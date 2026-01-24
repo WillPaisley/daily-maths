@@ -15,14 +15,6 @@ const profiles = [
     color: "#2196F3",
     backgroundColor: "#E3F2FD",
     difficulty: "medium"
-  },
-  {
-    id: 3,
-    name: "Math Pro",
-    icon: "🧠",
-    color: "#FF9800",
-    backgroundColor: "#FFF3E0",
-    difficulty: "hard"
   }
 ];
 
