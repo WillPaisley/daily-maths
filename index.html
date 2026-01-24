@@ -1,4 +1,74 @@
 <!DOCTYPE html>
+  <!-- DEBUG SCRIPT -->
+  <script>
+    console.log('=== PAGE LOAD DEBUG ===');
+    console.log('Window loaded at:', new Date().toLocaleTimeString());
+    
+    // Check if all required elements exist
+    const checkElements = () => {
+      const elements = {
+        'welcome-screen': document.getElementById('welcome-screen'),
+        'profile-screen': document.getElementById('profile-screen'),
+        'question-screen': document.getElementById('question-screen'),
+        'results-screen': document.getElementById('results-screen'),
+        'select-profile-btn': document.getElementById('select-profile-btn'),
+        'back-to-welcome-btn': document.getElementById('back-to-welcome-btn'),
+        'start-game-btn': document.getElementById('start-game-btn')
+      };
+      
+      console.log('Checking elements...');
+      Object.entries(elements).forEach(([id, element]) => {
+        console.log(`${id}:`, element ? '✅ Found' : '❌ NOT FOUND');
+      });
+      
+      return elements;
+    };
+    
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM fully loaded');
+      const elements = checkElements();
+      
+      // Check initial screen state
+      console.log('Current active screen:',
+        [...document.querySelectorAll('.screen.active')]
+          .map(s => s.id)
+          .join(', ') || 'None'
+      );
+      
+      // Add click debug to select-profile-btn
+      const profileBtn = elements['select-profile-btn'];
+      if (profileBtn) {
+        const originalClick = profileBtn.onclick;
+        profileBtn.addEventListener('click', (e) => {
+          console.log('=== select-profile-btn CLICKED ===');
+          console.log('Event target:', e.target.id);
+          console.log('Current screen before click:',
+            [...document.querySelectorAll('.screen.active')]
+              .map(s => s.id)
+              .join(', ')
+          );
+          
+          // Check what app.js will try to do
+          console.log('window.switchScreen exists:', typeof window.switchScreen);
+          
+          if (typeof window.switchScreen === 'function') {
+            console.log('Calling switchScreen("profile")...');
+            window.switchScreen('profile');
+          } else {
+            console.log('switchScreen not found in window object');
+          }
+        });
+      }
+    });
+  </script>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">

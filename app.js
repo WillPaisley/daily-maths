@@ -200,17 +200,41 @@ function formatDate() {
 
 // Switch screen
 function switchScreen(screenName) {
-  console.log(`Switching to screen: ${screenName}`);
+  console.log(`🔀 switchScreen called with: "${screenName}"`);
+  
+  // Debug: Show available screens
+  console.log('Available screens:', Object.keys(screens));
   
   Object.values(screens).forEach(screen => {
+    const wasActive = screen.classList.contains('active');
     screen.classList.remove('active');
+    if (wasActive && screen.id) {
+      console.log(`  Removed active from: ${screen.id}`);
+    }
   });
   
-  if (screens[screenName]) {
-    screens[screenName].classList.add('active');
+  const targetScreen = screens[screenName];
+  if (targetScreen) {
+    console.log(`✅ Activating screen: ${screenName} (${targetScreen.id})`);
+    targetScreen.classList.add('active');
   } else {
-    console.error(`Screen "${screenName}" not found!`);
+    console.error(`❌ Screen "${screenName}" not found in screens object!`);
+    console.error('Available screens:', Object.keys(screens));
+    
+    // Try to find screen by ID as fallback
+    const screenById = document.getElementById(`${screenName}-screen`);
+    if (screenById) {
+      console.log(`Found screen by ID: ${screenById.id}, activating it`);
+      screenById.classList.add('active');
+    }
   }
+  
+  // Log current active screen after switch
+  setTimeout(() => {
+    const activeScreens = [...document.querySelectorAll('.screen.active')];
+    console.log(`Active screens after switch:`, 
+      activeScreens.map(s => s.id).join(', ') || 'None');
+  }, 10);
 }
 
 // Start the timer
@@ -550,6 +574,16 @@ function resetGameState() {
 
 // Initialize app
 function init() {
+  console.log('🚀 App initialization started');
+  
+  // Debug: Log all screens
+  console.log('Screens object:', {
+    welcome: screens.welcome ? '✅ Found' : '❌ Missing',
+    profile: screens.profile ? '✅ Found' : '❌ Missing',
+    question: screens.question ? '✅ Found' : '❌ Missing',
+    results: screens.results ? '✅ Found' : '❌ Missing'
+  });
+  
   // Load profiles and settings from config.js
   state.profiles = window.profiles || [];
   state.gameSettings = window.gameSettings || {
@@ -562,6 +596,9 @@ function init() {
     }
   };
   
+  console.log(`📊 Loaded ${state.profiles.length} profiles:`, 
+    state.profiles.map(p => p.name).join(', '));
+  
   // If no profiles were loaded from config.js, show an error
   if (state.profiles.length === 0) {
     console.error('No profiles found. Please check config.js');
@@ -573,13 +610,16 @@ function init() {
   elements.currentDate.textContent = formatDate();
   
   // Render profiles
+  console.log('Rendering profiles...');
   renderProfiles();
   
-  // ========== EVENT LISTENERS ==========
+  // Debug: Check event listeners
+  console.log('Setting up event listeners...');
   
-  // 1. Welcome Screen -> Profile Selection
+  // Event listeners
   elements.selectProfileBtn.addEventListener('click', () => {
-    console.log('Going to profile selection screen');
+    console.log('🎯 selectProfileBtn clicked!');
+    console.log('Current profile:', state.currentProfile);
     switchScreen('profile');
   });
   
@@ -655,6 +695,9 @@ function init() {
     e.target.value = e.target.value.replace(/[^0-9]/g, '');
   });
 }
+
+// Make switchScreen available globally for debugging
+window.switchScreen = switchScreen;
 
 // Start the app when page loads
 document.addEventListener('DOMContentLoaded', init);

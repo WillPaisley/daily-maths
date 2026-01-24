@@ -7,7 +7,7 @@ window.profiles = [
     icon: "👨",  // Using simple man emoji to avoid issues
     color: "#4CAF50",
     backgroundColor: "#E8F5E9",
-    difficulty: "medium"
+    difficulty: "easy"
   },
   {
     id: 2,
@@ -15,7 +15,7 @@ window.profiles = [
     icon: "👦",
     color: "#2196F3",
     backgroundColor: "#E3F2FD",
-    difficulty: "medium"
+    difficulty: "easy"
   }
 ];
 
