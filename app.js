@@ -389,12 +389,9 @@ function resetGameState() {
 
 // Initialize app
 function init() {
-  // Load profiles and settings
-  state.profiles = window.profiles || [
-    { id: 1, name: "Dad", icon: "👨‍🦳", color: "#4CAF50", backgroundColor: "#E8F5E9", difficulty: "medium" },
-    { id: 2, name: "Will", icon: "👦", color: "#2196F3", backgroundColor: "#E3F2FD", difficulty: "easy" }
-  ];
-  
+  // Load profiles and settings from config.js
+  // These are defined in config.js which is loaded before app.js
+  state.profiles = window.profiles || [];
   state.gameSettings = window.gameSettings || {
     dailyQuestions: 5,
     defaultDifficulty: "medium",
@@ -404,6 +401,13 @@ function init() {
       hard: { min: 20, max: 99 }
     }
   };
+  
+  // If no profiles were loaded from config.js, show an error
+  if (state.profiles.length === 0) {
+    console.error('No profiles found. Please check config.js');
+    alert('No profiles configured. Please check the config.js file.');
+    return;
+  }
   
   // Set current date
   elements.currentDate.textContent = formatDate();
