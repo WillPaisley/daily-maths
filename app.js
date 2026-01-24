@@ -12,6 +12,88 @@ const state = {
   isTimerRunning: false
 };
 
+// LocalStorage Management
+function getStoredResults() {
+  const stored = localStorage.getItem('mathGameResults');
+  return stored ? JSON.parse(stored) : {};
+}
+
+function saveResults(results) {
+  localStorage.setItem('mathGameResults', JSON.stringify(results));
+}
+
+function getProfileResults(profileId) {
+  const results = getStoredResults();
+  return results[profileId] || { attempts: [], averageScore: 0, totalGames: 0 };
+}
+
+function saveProfileResult(profileId, score) {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const now = Date.now();
+  
+  const results = getStoredResults();
+  
+  if (!results[profileId]) {
+    results[profileId] = { attempts: [], averageScore: 0, totalGames: 0 };
+  }
+  
+  const profile = results[profileId];
+  
+  // Remove any existing attempt from today
+  profile.attempts = profile.attempts.filter(attempt => 
+    attempt.date !== today
+  );
+  
+  // Add today's attempt (keeping only newest)
+  profile.attempts.push({
+    date: today,
+    score: score,
+    timestamp: now
+  });
+  
+  // Sort by timestamp descending (newest first)
+  profile.attempts.sort((a, b) => b.timestamp - a.timestamp);
+  
+  // Keep only one per day (newest)
+  const uniqueDays = {};
+  profile.attempts = profile.attempts.filter(attempt => {
+    if (!uniqueDays[attempt.date]) {
+      uniqueDays[attempt.date] = true;
+      return true;
+    }
+    return false;
+  });
+  
+  // Recalculate statistics
+  profile.totalGames = profile.attempts.length;
+  profile.averageScore = profile.attempts.length > 0
+    ? profile.attempts.reduce((sum, attempt) => sum + attempt.score, 0) / profile.attempts.length
+    : 0;
+  
+  // Save back to localStorage
+  saveResults(results);
+  
+  return {
+    todayScore: score,
+    averageScore: profile.averageScore,
+    totalGames: profile.totalGames
+  };
+}
+
+function getProfileStatistics(profileId) {
+  const today = new Date().toISOString().slice(0, 10);
+  const profile = getProfileResults(profileId);
+  
+  // Find today's score
+  const todayAttempt = profile.attempts.find(attempt => attempt.date === today);
+  
+  return {
+    todayScore: todayAttempt ? todayAttempt.score : 0,
+    averageScore: profile.averageScore || 0,
+    totalGames: profile.totalGames || 0
+  };
+}
+
 // DOM Elements
 const screens = {
   welcome: document.getElementById('welcome-screen'),
@@ -203,25 +285,41 @@ function renderProfiles() {
 }
 
 // Select a profile
-function selectProfile(profileId) {
-  // Clear previous selection
-  document.querySelectorAll('.profile-card').forEach(card => {
-    card.classList.remove('selected');
-  });
-  
-  // Mark selected profile
-  const selectedCard = document.querySelector(`[data-profile-id="${profileId}"]`);
-  selectedCard.classList.add('selected');
-  
-  // Find and set current profile
-  state.currentProfile = state.profiles.find(p => p.id === profileId);
-  
-  // Enable start button
-  elements.startGameBtn.disabled = false;
-  
-  // Update start button text
-  elements.startGameBtn.textContent = `Start as ${state.currentProfile.name}`;
-}
+  function selectProfile(profileId) {
+    // Clear previous selection
+    document.querySelectorAll('.profile-card').forEach(card => {
+      card.classList.remove('selected');
+    });
+    
+    // Mark selected profile
+    const selectedCard = document.querySelector(`[data-profile-id="${profileId}"]`);
+    selectedCard.classList.add('selected');
+    
+    // Find and set current profile
+    state.currentProfile = state.profiles.find(p => p.id === profileId);
+    
+    // Get profile statistics
+    const stats = getProfileStatistics(profileId);
+    
+    // Update profile card with statistics
+    const statsElement = selectedCard.querySelector('.profile-difficulty') || 
+                        document.createElement('p');
+    if (!selectedCard.querySelector('.profile-difficulty')) {
+      statsElement.className = 'profile-difficulty';
+      selectedCard.appendChild(statsElement);
+    }
+    
+    statsElement.innerHTML = `
+      <span>${state.currentProfile.difficulty.charAt(0).toUpperCase() + state.currentProfile.difficulty.slice(1)} Difficulty</span><br>
+      <small>Avg: ${stats.averageScore.toFixed(1)}/5 | Games: ${stats.totalGames}</small>
+    `;
+    
+    // Enable start button
+    elements.startGameBtn.disabled = false;
+    
+    // Update start button text
+    elements.startGameBtn.textContent = `Start as ${state.currentProfile.name}`;
+  }
 
 // Render current question
 function renderQuestion() {

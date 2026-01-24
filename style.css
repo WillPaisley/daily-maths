@@ -467,3 +467,62 @@ h3 {
     font-size: 2em;
   }
 }
+
+/* Statistics Container */
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin: 25px 0;
+}
+
+.stat-box {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #667eea;
+}
+
+/* Profile card statistics */
+.profile-difficulty small {
+  display: block;
+  margin-top: 5px;
+  color: #888;
+  font-size: 0.8em;
+}
+
+/* Responsive for statistics */
+@media (max-width: 600px) {
+  .stats-container {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .stat-box {
+    padding: 15px;
+  }
+  
+  .stat-value {
+    font-size: 1.5em;
+  }
+}

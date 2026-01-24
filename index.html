@@ -97,42 +97,34 @@
     </div>
 
     <!-- Results Screen -->
-    <div id="results-screen" class="screen">
-      <div class="results-header">
-        <div class="profile-indicator">
-          <span class="profile-icon" id="results-profile-icon">👨‍🦳</span>
-          <span class="profile-name" id="results-profile-name">Dad</span>
-        </div>
-        <h1>🎯 Challenge Complete!</h1>
-      </div>
-      
-      <div class="score-display">
-        <h2>Your Score: <span id="final-score">0</span>/5</h2>
-        <div class="score-circle">
-          <svg width="120" height="120" viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="54" fill="none" stroke="#e0e0e0" stroke-width="12"></circle>
-            <circle id="score-circle" cx="60" cy="60" r="54" fill="none" stroke="#667eea" stroke-width="12" 
-                    stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="339.292" stroke-dashoffset="339.292"></circle>
-          </svg>
-          <div class="score-percent">0%</div>
-        </div>
-      </div>
-      
-      <div id="result-details">
-        <!-- Question results will be added here -->
-      </div>
-      
-      <div class="result-message">
-        <p id="encouragement-message"></p>
-      </div>
-      
-      <div class="navigation">
-        <button id="restart-btn" class="btn-primary">Play Again</button>
-        <button id="new-profile-btn" class="btn-secondary">New Player</button>
-        <button id="share-btn" class="btn-secondary">Share Score</button>
-      </div>
-    </div>
-  </div> <!-- This closes the container div -->
+<div class="score-display">
+  <h2>Your Score: <span id="final-score">0</span>/5</h2>
+  <div class="score-circle">
+    <svg width="120" height="120" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="54" fill="none" stroke="#e0e0e0" stroke-width="12"></circle>
+      <circle id="score-circle" cx="60" cy="60" r="54" fill="none" stroke="#667eea" stroke-width="12" 
+              stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="339.292" stroke-dashoffset="339.292"></circle>
+    </svg>
+    <div class="score-percent">0%</div>
+  </div>
+</div>
+
+<!-- Add average score display -->
+<div class="stats-container">
+  <div class="stat-box">
+    <div class="stat-label">Today's Score</div>
+    <div class="stat-value" id="today-score">0/5</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Average Score</div>
+    <div class="stat-value" id="average-score">0/5</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Games Played</div>
+    <div class="stat-value" id="games-played">0</div>
+  </div>
+</div>
+</div> <!-- This closes the container div -->
 
   <!-- DEBUG SCRIPT - ADD THIS FIRST -->
   <script>
