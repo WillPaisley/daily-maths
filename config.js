@@ -1,9 +1,10 @@
 // config.js - User profiles configuration
-const profiles = [
+// Use window object to make variables globally accessible
+window.profiles = [
   {
     id: 1,
     name: "Twat",
-    icon: "👨‍🦳",  // Fixed: Man with beard emoji
+    icon: "👨",  // Using simple man emoji to avoid issues
     color: "#4CAF50",
     backgroundColor: "#E8F5E9",
     difficulty: "medium"
@@ -11,7 +12,7 @@ const profiles = [
   {
     id: 2,
     name: "Son of Twat",
-    icon: "👦",  // Boy emoji
+    icon: "👦",
     color: "#2196F3",
     backgroundColor: "#E3F2FD",
     difficulty: "medium"
@@ -19,7 +20,7 @@ const profiles = [
 ];
 
 // Game settings
-const gameSettings = {
+window.gameSettings = {
   dailyQuestions: 5,
   defaultDifficulty: "medium",
   numberRange: {
@@ -28,3 +29,5 @@ const gameSettings = {
     hard: { min: 20, max: 99 }
   }
 };
+
+console.log('config.js loaded - Profiles:', window.profiles.length);
