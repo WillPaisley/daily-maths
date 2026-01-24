@@ -120,7 +120,7 @@ function switchScreen(screenName) {
 // Start the timer
 function startTimer() {
   // Reset timer state
-  state.timeLeft = 60;
+  state.timeLeft = 100;
   state.isTimerRunning = true;
   
   // Update timer display
@@ -156,7 +156,7 @@ function updateTimerDisplay() {
   
   // Update timer circle
   const circumference = 2 * Math.PI * 54;
-  const offset = circumference - (state.timeLeft / 60) * circumference;
+  const offset = circumference - (state.timeLeft / 100) * circumference;
   elements.timerCircle.style.strokeDashoffset = offset;
   
   // Change color based on time left
