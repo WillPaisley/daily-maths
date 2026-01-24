@@ -8,7 +8,7 @@ const state = {
   profiles: [],
   gameSettings: null,
   timer: null,
-  timeLeft: 60,
+  timeLeft: 100,
   isTimerRunning: false
 };
 
