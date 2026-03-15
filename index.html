@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Challenge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Screen 1: Welcome / Home -->
+        <div id="screen-home" class="screen active">
+            <h1>🧮 Math Challenge</h1>
+            <div class="button-group">
+                <button id="home-to-profile" class="btn-primary">Select Profile</button>
+                <button id="home-to-results" class="btn-secondary">See Results</button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Profile selection -->
+        <div id="screen-profile" class="screen">
+            <h2>Choose your profile</h2>
+            <div id="profile-list" class="profile-grid">
+                <!-- Profiles will be injected here -->
+            </div>
+            <button id="profile-back" class="btn-secondary">Back</button>
+        </div>
+
+        <!-- Screen 3: Difficulty selection -->
+        <div id="screen-difficulty" class="screen">
+            <h2>Select difficulty</h2>
+            <p id="selected-profile-name" class="selected-info"></p>
+            <div class="difficulty-grid">
+                <button class="btn-difficulty" data-difficulty="easy">Easy</button>
+                <button class="btn-difficulty" data-difficulty="medium">Medium</button>
+                <button class="btn-difficulty" data-difficulty="hard">Hard</button>
+            </div>
+            <button id="difficulty-back" class="btn-secondary">Back</button>
+        </div>
+
+        <!-- Screen 4: Question & timer -->
+        <div id="screen-question" class="screen">
+            <div class="header">
+                <span id="question-profile-indicator"></span>
+                <span id="question-timer" class="timer">120s</span>
+            </div>
+            <div class="progress-bar">
+                <div id="question-progress" class="progress-fill"></div>
+            </div>
+            <p id="question-text" class="question"></p>
+            <div class="answer-area">
+                <input type="number" id="answer-input" placeholder="Type your answer" autocomplete="off">
+                <button id="submit-answer" class="btn-primary">Submit</button>
+            </div>
+            <p id="question-feedback" class="feedback"></p>
+            <button id="next-question" class="btn-secondary hidden">Next</button>
+        </div>
+
+        <!-- Screen 5: Summary (score and link to full results) -->
+        <div id="screen-summary" class="screen">
+            <h2>Your score</h2>
+            <p id="final-score" class="big-score">0/5</p>
+            <button id="summary-to-results" class="btn-primary">See Full Results</button>
+            <button id="summary-home" class="btn-secondary">Home</button>
+        </div>
+
+        <!-- Screen 6: Full results for all players -->
+        <div id="screen-results" class="screen">
+            <h2>All Players Results</h2>
+            <div id="results-container"></div>
+            <button id="results-back" class="btn-secondary">Back to Home</button>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

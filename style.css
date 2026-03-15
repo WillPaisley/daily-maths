@@ -1,0 +1,275 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-width: 500px;
+    width: 100%;
+    padding: 30px;
+}
+
+.screen {
+    display: none;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.screen.active {
+    display: flex;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #333;
+}
+
+h1 { font-size: 2.2em; }
+h2 { font-size: 1.8em; }
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-primary, .btn-secondary, .btn-difficulty {
+    padding: 15px 25px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102,126,234,0.4);
+}
+
+.btn-secondary {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.btn-secondary:hover {
+    background: #667eea;
+    color: white;
+}
+
+.btn-difficulty {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.btn-difficulty:hover {
+    background: #667eea;
+    color: white;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.profile-card {
+    border: 3px solid transparent;
+    border-radius: 15px;
+    padding: 20px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.profile-card:hover {
+    transform: scale(1.05);
+}
+
+.profile-card.selected {
+    border-color: #667eea;
+    box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+}
+
+.profile-icon {
+    font-size: 3em;
+}
+
+.profile-name {
+    font-size: 1.3em;
+    font-weight: 600;
+    margin: 10px 0 5px;
+}
+
+.difficulty-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.selected-info {
+    text-align: center;
+    font-size: 1.2em;
+    color: #666;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.timer {
+    font-size: 2em;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.progress-bar {
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 5px;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    width: 0%;
+    transition: width 0.3s;
+}
+
+.question {
+    font-size: 2.5em;
+    text-align: center;
+    margin: 30px 0;
+    font-weight: bold;
+    color: #333;
+}
+
+.answer-area {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+#answer-input {
+    flex: 1;
+    padding: 20px;
+    font-size: 2em;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-family: monospace;
+}
+
+#answer-input:focus {
+    border-color: #667eea;
+    outline: none;
+}
+
+.feedback {
+    text-align: center;
+    font-size: 1.2em;
+    min-height: 2em;
+    color: #666;
+}
+
+.hidden {
+    display: none;
+}
+
+.big-score {
+    font-size: 4em;
+    text-align: center;
+    color: #667eea;
+    margin: 20px 0;
+}
+
+#results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px 0;
+}
+
+.player-result-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 5px solid #667eea;
+}
+
+.player-result-card h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.player-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.stat-item {
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #333;
+}
+
+.question-type-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+@media (max-width: 600px) {
+    .profile-grid, .difficulty-grid {
+        grid-template-columns: 1fr;
+    }
+}
